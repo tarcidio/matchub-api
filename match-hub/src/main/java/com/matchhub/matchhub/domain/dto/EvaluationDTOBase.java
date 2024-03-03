@@ -18,7 +18,7 @@ public class EvaluationDTOBase {
     private Long id;
 //    private HubUser hubUser;
 //    private Comment comment;
-//    private EvaluationLevel level;
+    private EvaluationLevel level;
     private LocalDateTime creation;
     private LocalDateTime update;
 }

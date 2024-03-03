@@ -4,9 +4,7 @@ import com.matchhub.matchhub.domain.enums.Known;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Objects;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 @Getter
 @Setter
@@ -30,7 +28,7 @@ public class Screen {
     private Known known;
 
     @OneToMany(mappedBy = "screen", cascade = CascadeType.ALL)
-    private SortedSet<Comment> comments = new TreeSet<>();
+    private List<Comment> comments = new ArrayList<>();
 
     @Override
     public boolean equals(Object o) {

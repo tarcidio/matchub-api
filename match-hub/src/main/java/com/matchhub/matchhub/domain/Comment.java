@@ -10,9 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -22,7 +20,7 @@ import java.util.Set;
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
-public class Comment implements Comparable<Comment>{
+public class Comment{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -54,18 +52,7 @@ public class Comment implements Comparable<Comment>{
     private String text;
 
     @OneToMany(mappedBy = "comment")
-    private Set<Evaluation> evaluations = new HashSet<>();
-
-    @Override
-    public int compareTo(Comment other) {
-        long myGoodEvaluations = this.evaluations.stream()
-                .filter(evaluation -> evaluation.getLevel().equals(EvaluationLevel.GOOD))
-                .count();
-        long otherGoodEvaluations = other.getEvaluations().stream()
-                .filter(evaluation -> evaluation.getLevel().equals(EvaluationLevel.GOOD))
-                .count();
-        return Long.compare(myGoodEvaluations, otherGoodEvaluations);
-    }
+    private List<Evaluation> evaluations = new ArrayList<>();
 
     @Override
     public boolean equals(Object o) {

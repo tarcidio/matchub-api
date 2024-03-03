@@ -58,12 +58,12 @@ public class AppConfig {
             hubUserRepository.saveAll(List.of(Tarcidio, Augusto, Gabriel));
 
             //Create Screens
-            Screen GragasVsDarius = new Screen(null, Gragas, Darius, Known.MEDIUM, new TreeSet<>());
-            Screen DariusVsGragas = new Screen(null, Darius, Gragas, Known.MEDIUM, new TreeSet<>());
-            Screen DariusVsRenekton = new Screen(null, Darius, Renekton, Known.HIGH, new TreeSet<>());
-            Screen RenektonVsDarius = new Screen(null, Renekton, Darius, Known.HIGH, new TreeSet<>());
-            Screen JannaVsGragas = new Screen(null, Janna, Gragas, Known.LOW, new TreeSet<>());
-            Screen GragasVsJanna = new Screen(null, Gragas, Janna, Known.LOW, new TreeSet<>());
+            Screen GragasVsDarius = new Screen(null, Gragas, Darius, Known.MEDIUM, new ArrayList<>());
+            Screen DariusVsGragas = new Screen(null, Darius, Gragas, Known.MEDIUM, new ArrayList<>());
+            Screen DariusVsRenekton = new Screen(null, Darius, Renekton, Known.HIGH, new ArrayList<>());
+            Screen RenektonVsDarius = new Screen(null, Renekton, Darius, Known.HIGH, new ArrayList<>());
+            Screen JannaVsGragas = new Screen(null, Janna, Gragas, Known.LOW, new ArrayList<>());
+            Screen GragasVsJanna = new Screen(null, Gragas, Janna, Known.LOW, new ArrayList<>());
             screenRepository.saveAll(List.of(GragasVsDarius, DariusVsGragas,
                     DariusVsRenekton, RenektonVsDarius, JannaVsGragas, GragasVsJanna));
 
@@ -72,29 +72,29 @@ public class AppConfig {
             Comment TarcidioGragasVsDarius = new Comment(null, Tarcidio, GragasVsDarius,
                     null, null, null, null,
                     "Gragas precisa jogar muito agressivo nesta rota",
-                    new HashSet<>());
+                    new ArrayList<>());
             Comment GabrielGragasVsDarius = new Comment(null, Gabriel, GragasVsDarius,
                     null, null, null, null,
                     "Gragas precisa jogar recuado nesta rota",
-                    new HashSet<>());
+                    new ArrayList<>());
             // Screen JannaVsGragas
             Comment TarcidioJannaVsGragas = new Comment(null, Tarcidio, JannaVsGragas,
                     null, null, null, null,
                     "Janna tem vantagem",
-                    new HashSet<>());
+                    new ArrayList<>());
             Comment AugustoJannaVsGragas = new Comment(null, Augusto, JannaVsGragas,
                     null, null, null, null,
                     "Janna não faz absolutamente nada",
-                    new HashSet<>());
+                    new ArrayList<>());
             // Screen RenektonVsDarius
             Comment GabrielRenektonVsDarius = new Comment(null, Gabriel, RenektonVsDarius,
                     null, null, null, null,
                     "Ambos precisar tem muito cuidado",
-                    new HashSet<>());
+                    new ArrayList<>());
             Comment AugustoRenektonVsDarius = new Comment(null, Augusto, RenektonVsDarius,
                     null, null, null, null,
                     "Parta para cima level 2",
-                    new HashSet<>());
+                    new ArrayList<>());
             commentRepository.saveAll(List.of(TarcidioGragasVsDarius, GabrielGragasVsDarius,
                     TarcidioJannaVsGragas, AugustoJannaVsGragas, GabrielRenektonVsDarius,
                     AugustoRenektonVsDarius));

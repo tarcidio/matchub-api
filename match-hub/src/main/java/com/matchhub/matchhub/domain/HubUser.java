@@ -56,11 +56,11 @@ public class HubUser {
 
     /* Goal: visualize all comments of a user */
     @OneToMany(mappedBy = "hubUser", cascade = CascadeType.ALL)
-    private SortedSet<Comment> comments = new TreeSet<>();
+    private List<Comment> comments = new ArrayList<>();
 
     /* Goal: visualize all e evaluation*/
     @OneToMany(mappedBy = "hubUser", cascade = CascadeType.ALL)
-    private Set<Evaluation> evaluations = new HashSet<>();
+    private List<Evaluation> evaluations = new ArrayList<>();
 
     @Override
     public boolean equals(Object o) {

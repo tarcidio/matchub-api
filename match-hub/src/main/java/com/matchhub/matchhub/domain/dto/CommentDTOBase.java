@@ -1,5 +1,7 @@
 package com.matchhub.matchhub.domain.dto;
 
+import com.matchhub.matchhub.domain.Comment;
+import com.matchhub.matchhub.domain.enums.EvaluationLevel;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
@@ -15,7 +17,7 @@ import java.time.LocalTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentDTOBase {
+public class CommentDTOBase{
     private Long id;
 //    private HubUser hubUser;
 //    private Screen screen;

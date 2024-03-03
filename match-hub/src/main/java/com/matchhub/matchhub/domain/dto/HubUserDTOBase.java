@@ -1,5 +1,6 @@
 package com.matchhub.matchhub.domain.dto;
 
+import com.matchhub.matchhub.domain.enums.Hability;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +19,7 @@ public class HubUserDTOBase {
     private String login;
     private String password;
     private Boolean moderator;
-//    private Hability abilityLevel;
+    private Hability abilityLevel;
 //    private Champion mastery;
 //    private LocalDateTime creation;
 //    private LocalDateTime update;
