@@ -22,7 +22,7 @@ public class EvaluationController {
         this.evaluationService = evaluationService;
     }
 
-    /* Disabled: Post already have evaluations collections */
+    /* Disabled: Screen already have evaluations collections */
 //    @GetMapping(value = "/{evaluationId}")
 //    public ResponseEntity<Evaluation> findById(@PathVariable Long evaluationId){
 //        Evaluation evaluation = evaluationService.findById(evaluationId);

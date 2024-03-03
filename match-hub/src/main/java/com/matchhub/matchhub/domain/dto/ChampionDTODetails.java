@@ -9,8 +9,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentLinksDTO extends CommentBaseDTO{
-    /*This class have just id (links) to other classes*/
-    private Long hubUserId;
-    private Long postId;
+public class ChampionDTODetails extends ChampionDTOBase {
+    private Byte[] img;
 }

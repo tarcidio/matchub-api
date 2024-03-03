@@ -27,7 +27,7 @@ public class Evaluation {
     private Long id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "hubUser_id")
     private HubUser hubUser;
 
     @ManyToOne(optional = false)

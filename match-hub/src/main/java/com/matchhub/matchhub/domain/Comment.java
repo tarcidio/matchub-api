@@ -1,13 +1,12 @@
 package com.matchhub.matchhub.domain;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.matchhub.matchhub.domain.enums.EvaluationLevel;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -29,12 +28,12 @@ public class Comment implements Comparable<Comment>{
     private Long id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "hubUser_id")
     private HubUser hubUser;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "post_id")
-    private Post post;
+    @JoinColumn(name = "screen_id")
+    private Screen screen;
 
     @Temporal(TemporalType.DATE)
     @CreationTimestamp
@@ -43,6 +42,14 @@ public class Comment implements Comparable<Comment>{
     @Temporal(TemporalType.TIME)
     @CreationTimestamp
     private LocalTime creationTime;
+
+    @Temporal(TemporalType.DATE)
+    @UpdateTimestamp
+    private LocalDate updateDate;
+
+    @Temporal(TemporalType.TIME)
+    @UpdateTimestamp
+    private LocalTime updateTime;
 
     private String text;
 
@@ -65,11 +72,11 @@ public class Comment implements Comparable<Comment>{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Comment comment = (Comment) o;
-        return Objects.equals(id, comment.id) && Objects.equals(hubUser, comment.hubUser) && Objects.equals(post, comment.post);
+        return Objects.equals(id, comment.id) && Objects.equals(hubUser, comment.hubUser) && Objects.equals(screen, comment.screen);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, hubUser, post);
+        return Objects.hash(id, hubUser, screen);
     }
 }

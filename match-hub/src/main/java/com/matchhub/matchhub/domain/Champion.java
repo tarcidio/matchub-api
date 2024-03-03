@@ -18,7 +18,7 @@ public class Champion {
     private String name;
 
     private Byte[] img;
-    //Note: don't list champion user either posts. Then, it don't bidirectional
+    //Note: don't list champion user either screen. Then, it don't bidirectional
 
     @Override
     public boolean equals(Object o) {

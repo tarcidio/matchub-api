@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
-@RequestMapping(value = "/posts/{postId}/comments")
+@RequestMapping(value = "/screens/{screenId}/comments")
 public class CommentController {
 
     private final CommentService commentService;
@@ -18,21 +18,21 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    /* Disabled: Post already have comments collections */
+    /* Disabled: Screen already have comments collections */
 //    @GetMapping(value = "/{commentId}")
 //    public ResponseEntity<Comment> findById(@PathVariable Long commentId){
 //        Comment comment = commentService.findById(commentId);
 //        return ResponseEntity.ok().body(comment);
 //    }
 
-    /* Disabled: Post already have comments collections */
+    /* Disabled: Screen already have comments collections */
 //    @GetMapping
-//    public ResponseEntity<List<Comment>> findAll(@PathVariable Long postId)
+//    public ResponseEntity<List<Comment>> findAll(@PathVariable Long screenId)
 
     @PostMapping
-    public ResponseEntity<Comment> create(@PathVariable Long postId,
+    public ResponseEntity<Comment> create(@PathVariable Long screenId,
                                           @RequestBody Comment comment){
-        Comment savedComment = commentService.save(postId, comment);
+        Comment savedComment = commentService.save(screenId, comment);
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -42,10 +42,10 @@ public class CommentController {
     }
 
     @PutMapping(value = "/{commentId}")
-    public ResponseEntity<Comment> update(@PathVariable Long postId,
+    public ResponseEntity<Comment> update(@PathVariable Long screenId,
                                           @PathVariable Long commentId,
                                           @RequestBody Comment comment){
-        Comment updatedComment = commentService.update(postId, commentId, comment);
+        Comment updatedComment = commentService.update(screenId, commentId, comment);
         return ResponseEntity.ok().body(updatedComment);
     }
 

@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChampionBaseDTO {
+public class ChampionDTOBase {
     private Long id;
     private String name;
 //    private Byte[] img;

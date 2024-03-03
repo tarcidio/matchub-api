@@ -57,7 +57,7 @@ public class EvaluationService{
         //Validate new evaluation with authenticated hubUser id
 //        if (evaluation.getHubUser() != null && !evaluation.getHubUser().getId().equals(hubUser.getId())) {
 //            //Customize exception
-//            throw new IllegalArgumentException("Comment is incompatible with the indicated post.");
+//            throw new IllegalArgumentException("Comment is incompatible with the indicated screen.");
 //        }
 
         //Set Id, Comment and User
@@ -106,7 +106,7 @@ public class EvaluationService{
 
     public void delete(Long evaluationId) {
         /*Need authentication*/
-        //Validate Id, Post and User
+        //Validate Id, Screen and User
         evaluationRepository.deleteById(evaluationId);
     }
 }
