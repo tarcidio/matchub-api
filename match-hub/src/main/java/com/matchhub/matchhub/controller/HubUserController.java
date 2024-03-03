@@ -43,9 +43,10 @@ public class HubUserController {
         return ResponseEntity.ok().body(updatedHubUser);
     }
 
-    @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id){
-        hubUserService.delete(id);
-        return ResponseEntity.noContent().build();
-    }
+    /* Disabled: User never wil be deleted */
+//    @DeleteMapping(value = "/{id}")
+//    public ResponseEntity<Void> delete(@PathVariable Long id){
+//        hubUserService.delete(id);
+//        return ResponseEntity.noContent().build();
+//    }
 }

@@ -18,11 +18,12 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    @GetMapping(value = "/{commentId}")
-    public ResponseEntity<Comment> findById(@PathVariable Long commentId){
-        Comment comment = commentService.findById(commentId);
-        return ResponseEntity.ok().body(comment);
-    }
+    /* Disabled: Post already have comments collections */
+//    @GetMapping(value = "/{commentId}")
+//    public ResponseEntity<Comment> findById(@PathVariable Long commentId){
+//        Comment comment = commentService.findById(commentId);
+//        return ResponseEntity.ok().body(comment);
+//    }
 
     /* Disabled: Post already have comments collections */
 //    @GetMapping
@@ -49,9 +50,8 @@ public class CommentController {
     }
 
     @DeleteMapping(value = "/{commentId}")
-    public ResponseEntity<Void> delete(@PathVariable Long postId,
-                       @PathVariable Long commentId){
-        commentService.delete(postId, commentId);
+    public ResponseEntity<Void> delete(@PathVariable Long commentId){
+        commentService.delete(commentId);
         return ResponseEntity.noContent().build();
     }
 

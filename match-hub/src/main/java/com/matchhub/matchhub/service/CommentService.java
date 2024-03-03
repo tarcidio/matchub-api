@@ -42,18 +42,23 @@ public class CommentService {
         //Get Post
         Post post = postService.findById(postId);
         //Get HubUser
-        //1. Autenticate
+        //1. Authenticate
         //2. Get hubUserId
         //3. Use HubUserService to get object
         // Provisional:
         HubUser hubUser = new HubUser();
         hubUser.setId(comment.getHubUser().getId());
 
-        //Validate Post and User
+        //Validate new comment with post id
         if (comment.getPost() != null && !comment.getPost().getId().equals(post.getId())) {
             //Customize exception
             throw new IllegalArgumentException("Comment is incompatible with the indicated post.");
         }
+        //Validate new comment with authenticated hubUser id
+//        if (comment.getHubUser() != null && !comment.getHubUser().getId().equals(hubUser.getId())) {
+//            //Customize exception
+//            throw new IllegalArgumentException("Comment is incompatible with the indicated post.");
+//        }
 
         //Set Id, Post and User
         comment.setId(null);
@@ -63,32 +68,47 @@ public class CommentService {
         return commentRepository.save(comment);
     }
 
-    //duvida: post id eh necessario? eu nao preciso checar se esse comentario eh relametne deste post?
-    //no update esse check é mais importante (comment id e o que ta no body?)
-    //check no post id tambem
-    //nao tem a necessidade de recuperar as entidade user e post
+    //1. Check if the comment passed as an argument actually has the postId and commentId passed as arguments
+    //2. Retrieve the comment and verify if it truly belongs to that post
+    //3. Check if the authenticated hubUser is the same as the one in the retrieved comment
     public Comment update(Long postId, Long commentId, Comment comment) {
+        //Get comment
+        Comment updatedComment = this.findById(commentId);
         //Get HubUser
-        //1. Autenticate
+        //1. Authenticate
         //2. Get hubUserId
 
-        //Validate Id, Post and User with new comment
+        //Check if comment exists in post
+        if(!updatedComment.getPost().getId().equals(postId)){
+            throw new IllegalArgumentException("Update is incompatible with the indicated post.");
+        }
+        //Check if comment belong to authenticated hubUser id
+//      if (updatedComment.getHubUser().getId().equals(hubUser.getId())){
+//          throw new IllegalArgumentException("Update isn't allow.");
+//      }
+
+        //Validate new body comment with post id
         if (comment.getPost() != null && !comment.getPost().getId().equals(postId)) {
             throw new IllegalArgumentException("Comment is incompatible with the indicated post.");
         }
 
-        if (!comment.getId().equals(commentId)) {
-            throw new IllegalArgumentException("Comment Id is incompatible with the indicated.");
-        }
+        //Validate new body comment with authenticate hubUser id
+//        if (comment.getHubUser() != null && !comment.getHubUser().getId().equals(hubUser.getId())){
+//            throw new IllegalArgumentException("Comment is incompatible with the indicated post.");
+//        }
 
-        //Validate Id, Post and User with old comment
+        //No make sense, because comment don't have id (it's null)
+//        if (!comment.getId().equals(commentId)) {
+//            throw new IllegalArgumentException("Comment Id is incompatible with the indicated.");
+//        }
 
-        Comment updatedComment = this.findById(comment.getId());
         modelMapper.map(comment, updatedComment);
         return commentRepository.save(updatedComment);
     }
 
-    public void delete(Long postId, Long commentId) {
-        //validacao
+    public void delete(Long commentId) {
+        /*Need authentication*/
+        //Validate Id, Post and User
+        commentRepository.deleteById(commentId);
     }
 }

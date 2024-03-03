@@ -1,6 +1,6 @@
 package com.matchhub.matchhub.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.*;
 import com.matchhub.matchhub.domain.enums.Hability;
 import jakarta.persistence.*;
 import lombok.*;
@@ -8,12 +8,16 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.SortedSet;
+import java.util.*;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 public class HubUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,9 +56,22 @@ public class HubUser {
 
     /* Goal: visualize all comments of a user */
     @OneToMany(mappedBy = "hubUser", cascade = CascadeType.ALL)
-    private SortedSet<Comment> comments;
+    private SortedSet<Comment> comments = new TreeSet<>();
 
     /* Goal: visualize all e evaluation*/
     @OneToMany(mappedBy = "hubUser", cascade = CascadeType.ALL)
-    private SortedSet<Evaluation> evaluations;
+    private Set<Evaluation> evaluations = new HashSet<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        HubUser hubUser = (HubUser) o;
+        return Objects.equals(id, hubUser.id) && Objects.equals(email, hubUser.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, email);
+    }
 }

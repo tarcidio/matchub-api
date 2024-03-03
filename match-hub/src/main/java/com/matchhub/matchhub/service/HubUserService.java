@@ -11,8 +11,6 @@ import java.util.Optional;
 
 @Service
 public class HubUserService{
-    //TUDO QUE É PEGAR DO USUARIO LOGADO DEVE SER FEITO VAI SPRING SECURITY
-
     private final HubUserRepository hubUserRepository;
 
     private final ModelMapper modelMapper;
@@ -33,12 +31,14 @@ public class HubUserService{
     }
 
     public HubUser save(HubUser hubUser) {
+        /*Need authentication*/
         hubUser.setId(null);
         return hubUserRepository.save(hubUser);
     }
 
     public HubUser update(HubUser hubUser) {
         HubUser updatedUser = this.findById(hubUser.getId());
+        /*Need authentication*/
         /*VERIFY IF USER HAVE PERMISSION*/
         modelMapper.map(hubUser, updatedUser);
         return hubUserRepository.save(updatedUser);
@@ -46,6 +46,7 @@ public class HubUserService{
 
     public void delete(Long id) {
         this.findById(id);
+        /*Need authentication*/
         /*VERIFY IF USER HAVE PERMISSION*/
         hubUserRepository.deleteById(id);
     }
