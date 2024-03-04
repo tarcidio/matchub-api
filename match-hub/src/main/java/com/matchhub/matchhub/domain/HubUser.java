@@ -16,6 +16,10 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "hubuser", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"email"}),
+        @UniqueConstraint(columnNames = {"login"})
+})
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
@@ -24,19 +28,23 @@ public class HubUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String nickname;
 
     private String firstname;
 
     private String lastname;
 
+    @Column(nullable = false)
     private String email;
 
+    @Column(nullable = false)
     private String login;
 
     @JsonIgnore
     private String password;
 
+    @Column(nullable = false)
     private Boolean moderator;
 
     @Enumerated(value = EnumType.STRING)

@@ -10,11 +10,15 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "champion", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"name"})
+})
 public class Champion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
 
     private Byte[] img;

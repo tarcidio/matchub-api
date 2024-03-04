@@ -18,6 +18,9 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "evaluation", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"hubUser_id", "comment_id"})
+})
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
@@ -34,6 +37,7 @@ public class Evaluation {
     @JoinColumn(name = "comment_id")
     private Comment comment;
 
+    @Column(nullable = false)
     @Enumerated(EnumType.ORDINAL)
     private EvaluationLevel level;
 

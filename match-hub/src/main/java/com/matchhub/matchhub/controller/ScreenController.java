@@ -23,6 +23,12 @@ public class ScreenController {
         this.screenService = screenService;
     }
 
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<ScreenDTODetails> findById(@PathVariable Long id){
+        ScreenDTODetails screen = screenService.findById(id);
+        return ResponseEntity.ok().body(screen);
+    }
+
     @GetMapping(value = "/{spotlightId}/{opponentId}")
     public ResponseEntity<ScreenDTODetails> findByChampions(@PathVariable Long spotlightId,
                                                   @PathVariable Long opponentId){

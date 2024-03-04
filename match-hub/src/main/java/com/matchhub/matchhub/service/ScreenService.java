@@ -48,4 +48,19 @@ public class ScreenService {
                 "Type: " + Screen.class.getName())
         );
     }
+
+    public ScreenDTODetails findById(Long id) {
+        // Get information and check existence
+        Optional<Screen> screen = screenRepository.findById(id);
+        Screen screenDomain = screen.orElseThrow( () -> new ObjectNotFoundException(
+                "Object Not Found. " +
+                        "Id: "  + id + "." +
+                        "Type: " + Screen.class.getName())
+        );
+        // Converter
+        ScreenDTODetails screenDTODetails = new ScreenDTODetails();
+        modelMapper.map(screenDomain, screenDTODetails);
+        // Return result
+        return screenDTODetails;
+    }
 }

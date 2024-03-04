@@ -3,6 +3,9 @@ package com.matchhub.matchhub.service;
 import com.matchhub.matchhub.domain.Comment;
 import com.matchhub.matchhub.domain.Evaluation;
 import com.matchhub.matchhub.domain.HubUser;
+import com.matchhub.matchhub.dto.CommentDTOLinks;
+import com.matchhub.matchhub.dto.EvaluationDTOBase;
+import com.matchhub.matchhub.dto.EvaluationDTOLinks;
 import com.matchhub.matchhub.repository.EvaluationRepository;
 import com.matchhub.matchhub.service.exceptions.ObjectNotFoundException;
 import org.modelmapper.ModelMapper;
@@ -23,14 +26,17 @@ public class EvaluationService{
 
 
     @Autowired
-    public EvaluationService(EvaluationRepository evaluationRepository, CommentService commentService, HubUserService hubUserService, ModelMapper modelMapper) {
+    public EvaluationService(EvaluationRepository evaluationRepository,
+                             CommentService commentService,
+                             HubUserService hubUserService,
+                             ModelMapper modelMapper) {
         this.evaluationRepository = evaluationRepository;
         this.commentService = commentService;
         this.hubUserService = hubUserService;
         this.modelMapper = modelMapper;
     }
 
-    public Evaluation findById(Long id) {
+    public Evaluation findByDomainId(Long id) {
         Optional<Evaluation> evaluation = evaluationRepository.findById(id);
         return evaluation.orElseThrow(() -> new ObjectNotFoundException(
                 "Object Not Found. " +
@@ -38,70 +44,52 @@ public class EvaluationService{
                         "Type: " + Evaluation.class.getName()));
     }
 
-    public Evaluation save(Long commentId, Evaluation evaluation) {
+    public EvaluationDTOLinks save(Long commentId, EvaluationDTOBase evaluation) {
         //Get Comment
         Comment comment = commentService.findDomainById(commentId);
+
         //Get HubUser
         //1. Authenticate
         //2. Get hubUserId
         //3. Use HubUserService to get object
         // Provisional:
         HubUser hubUser = new HubUser();
-        hubUser.setId(evaluation.getHubUser().getId());
+        hubUser.setId(2L);
 
-        //Validate new evaluation with comment id
-        if (evaluation.getComment() != null && !evaluation.getComment().getId().equals(comment.getId())) {
-            //Customize exception
-            throw new IllegalArgumentException("Evaluation is incompatible with the indicated comment.");
-        }
-        //Validate new evaluation with authenticated hubUser id
-//        if (evaluation.getHubUser() != null && !evaluation.getHubUser().getId().equals(hubUser.getId())) {
-//            //Customize exception
-//            throw new IllegalArgumentException("Comment is incompatible with the indicated screen.");
-//        }
+        System.out.println("Chegou auqi");
 
-        //Set Id, Comment and User
-        evaluation.setId(null);
-        evaluation.setComment(comment);
-        evaluation.setHubUser(hubUser);
-
-        return evaluationRepository.save(evaluation);
+        // Create repository instance
+        Evaluation saveEvaluation = new Evaluation();
+        // Convert
+        modelMapper.map(evaluation, saveEvaluation);
+        //Set Id, Screen and User
+        saveEvaluation.setId(null);
+        saveEvaluation.setComment(comment);
+        saveEvaluation.setHubUser(hubUser);
+        return modelMapper.map(evaluationRepository.save(saveEvaluation), EvaluationDTOLinks.class);
     }
 
 
-    public Evaluation update(Long commentId, Long evaluationId, Evaluation evaluation) {
+    public EvaluationDTOLinks update(Long commentId, Long evaluationId, EvaluationDTOBase evaluation) {
         ///Get evaluation
-        Evaluation updatedEvaluation = this.findById(evaluationId);
+        Evaluation updatedEvaluation = this.findByDomainId(evaluationId);
         //Get HubUser
         //1. Authenticate
         //2. Get hubUserId
 
-        //Check if evaluation exists in comment
+        //Check if comment exists in screen
         if(!updatedEvaluation.getComment().getId().equals(commentId)){
             throw new IllegalArgumentException("Update is incompatible with the indicated comment.");
         }
-        //Check if evaluation belong to authenticated hubUser id
+        //Check if comment belong to authenticated hubUser id
 //      if (updatedEvaluation.getHubUser().getId().equals(hubUser.getId())){
 //          throw new IllegalArgumentException("Update isn't allow.");
 //      }
 
-        //Validate new body evaluation with comment id
-        if (evaluation.getComment() != null && !evaluation.getComment().getId().equals(commentId)) {
-            throw new IllegalArgumentException("Evaluation is incompatible with the indicated comment.");
-        }
-
-        //Validate new body evaluation with authenticate hubUser id
-//        if (evaluation.getHubUser() != null && !evaluation.getHubUser().getId().equals(hubUser.getId())){
-//            throw new IllegalArgumentException("Update isn't allow.");
-//        }
-
-        //No make sense, because comment don't have id (it's null)
-//        if (!evaluation.getId().equals(evaluationId)) {
-//            throw new IllegalArgumentException("");
-//        }
-
+        // Convert
         modelMapper.map(evaluation, updatedEvaluation);
-        return evaluationRepository.save(updatedEvaluation);
+        // Return response in correct format
+        return modelMapper.map(evaluationRepository.save(updatedEvaluation), EvaluationDTOLinks.class);
     }
 
     public void delete(Long evaluationId) {

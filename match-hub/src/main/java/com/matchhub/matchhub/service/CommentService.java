@@ -24,7 +24,10 @@ public class CommentService {
     private final ModelMapper modelMapper;
 
     @Autowired
-    public CommentService(CommentRepository commentRepository, ScreenService screenService, HubUserService hubUserService, ModelMapper modelMapper) {
+    public CommentService(CommentRepository commentRepository,
+                          ScreenService screenService,
+                          HubUserService hubUserService,
+                          ModelMapper modelMapper) {
         this.commentRepository = commentRepository;
         this.screenService = screenService;
         this.hubUserService = hubUserService;
@@ -97,9 +100,6 @@ public class CommentService {
 
         // Convert
         modelMapper.map(comment, updatedComment);
-        // Set id
-        //ATENÇÃO ISSO NAO SERÁ MAIS NECESSÁRIO
-        updatedComment.setId(commentId);
         // Return response in correct format
         return modelMapper.map(commentRepository.save(updatedComment),CommentDTOLinks.class);
     }

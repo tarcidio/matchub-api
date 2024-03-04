@@ -2,10 +2,13 @@ package com.matchhub.matchhub.controller;
 
 import com.matchhub.matchhub.domain.Comment;
 import com.matchhub.matchhub.domain.Evaluation;
+import com.matchhub.matchhub.dto.EvaluationDTOBase;
+import com.matchhub.matchhub.dto.EvaluationDTOLinks;
 import com.matchhub.matchhub.service.CommentService;
 import com.matchhub.matchhub.service.EvaluationService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -20,6 +23,7 @@ public class EvaluationController {
 
     private final EvaluationService evaluationService;
 
+    @Autowired
     public EvaluationController(EvaluationService evaluationService){
         this.evaluationService = evaluationService;
     }
@@ -32,22 +36,22 @@ public class EvaluationController {
 //    }
 
     @PostMapping
-    public ResponseEntity<Evaluation> create(@PathVariable Long commentId,
-                                             @RequestBody Evaluation evaluation){
-        Evaluation savedEvaluation = evaluationService.save(commentId, evaluation);
+    public ResponseEntity<EvaluationDTOLinks> create(@PathVariable Long commentId,
+                                                     @RequestBody EvaluationDTOBase evaluation){
+        EvaluationDTOLinks savedEvaluation = evaluationService.save(commentId, evaluation);
         URI uri = ServletUriComponentsBuilder.
                 fromCurrentRequest().
                 path("/{id}").
-                buildAndExpand().
+                buildAndExpand(savedEvaluation.getId()).
                 toUri();
         return ResponseEntity.created(uri).body(savedEvaluation);
     }
 
     @PutMapping(value = "/{evaluationId}")
-    public ResponseEntity<Evaluation> update(@PathVariable Long commentId,
+    public ResponseEntity<EvaluationDTOLinks> update(@PathVariable Long commentId,
                                              @PathVariable Long evaluationId,
-                                             @PathVariable Evaluation evaluation){
-        Evaluation updatedEvaluation = evaluationService.update(commentId, evaluationId, evaluation);
+                                             @RequestBody EvaluationDTOBase evaluation){
+        EvaluationDTOLinks updatedEvaluation = evaluationService.update(commentId, evaluationId, evaluation);
         return ResponseEntity.ok().body(updatedEvaluation);
     }
 

@@ -11,6 +11,9 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "screen", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"spotlight_id", "opponent_id"})
+})
 public class Screen {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +27,7 @@ public class Screen {
     @JoinColumn(name = "opponent_id")
     private Champion opponent;
 
+    @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
     private Known known;
 

@@ -17,6 +17,9 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "comment", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"hubUser_id", "screen_id", "creationDate"})
+})
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
@@ -49,6 +52,7 @@ public class Comment{
     @UpdateTimestamp
     private LocalTime updateTime;
 
+    @Column(nullable = false)
     private String text;
 
     @OneToMany(mappedBy = "comment")
