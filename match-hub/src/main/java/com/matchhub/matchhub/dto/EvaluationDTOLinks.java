@@ -1,5 +1,6 @@
-package com.matchhub.matchhub.domain.dto;
+package com.matchhub.matchhub.dto;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentDTOLinks extends CommentDTOBase {
+public class EvaluationDTOLinks extends EvaluationDTOBaseId{
     private Long hubUserId;
-    private Long screenId;
+    private Long commentId;
 }

@@ -3,6 +3,7 @@ package com.matchhub.matchhub.service;
 import com.matchhub.matchhub.domain.Comment;
 import com.matchhub.matchhub.domain.HubUser;
 import com.matchhub.matchhub.domain.Screen;
+import com.matchhub.matchhub.dto.*;
 import com.matchhub.matchhub.repository.CommentRepository;
 import com.matchhub.matchhub.service.exceptions.ObjectNotFoundException;
 import org.modelmapper.ModelMapper;
@@ -30,50 +31,57 @@ public class CommentService {
         this.modelMapper = modelMapper;
     }
 
-    public Comment findById(Long id) {
+    /*Get object. Internal use.*/
+    public Comment findDomainById(Long id){
         Optional<Comment> comment = commentRepository.findById(id);
         return comment.orElseThrow(() -> new ObjectNotFoundException(
                 "Object Not Found. " +
-                        "Id: "  + id + "." +
-                        "Type: " + Comment.class.getName()));
+                "Id: "  + id + "." +
+                "Type: " + Comment.class.getName()));
     }
 
-    public Comment save(Long screenId, Comment comment) {
+    public CommentDTODetails findById(Long id) {
+        // Get information and check existence
+        Optional<Comment> comment = commentRepository.findById(id);
+        Comment commentDomain = comment.orElseThrow(() -> new ObjectNotFoundException(
+                "Object Not Found. " +
+                "Id: "  + id + "." +
+                "Type: " + Comment.class.getName()));
+        // Converter
+        CommentDTODetails commentDTODetails = new CommentDTODetails();
+        modelMapper.map(commentDomain, commentDTODetails);
+        return commentDTODetails;
+    }
+
+    public CommentDTOLinks save(Long screenId, CommentDTOBase comment) {
         //Get Screen
-        Screen screen = screenService.findById(screenId);
+        Screen screen = screenService.findDomainById(screenId);
+
         //Get HubUser
         //1. Authenticate
         //2. Get hubUserId
         //3. Use HubUserService to get object
         // Provisional:
         HubUser hubUser = new HubUser();
-        hubUser.setId(comment.getHubUser().getId());
+        hubUser.setId(2L);
 
-        //Validate new comment with screen id
-        if (comment.getScreen() != null && !comment.getScreen().getId().equals(screen.getId())) {
-            //Customize exception
-            throw new IllegalArgumentException("Comment is incompatible with the indicated screen.");
-        }
-        //Validate new comment with authenticated hubUser id
-//        if (comment.getHubUser() != null && !comment.getHubUser().getId().equals(hubUser.getId())) {
-//            //Customize exception
-//            throw new IllegalArgumentException("Comment is incompatible with the indicated screen.");
-//        }
-
+        // Create repository instance
+        Comment saveComment = new Comment();
+        // Convert
+        modelMapper.map(comment, saveComment);
         //Set Id, Screen and User
-        comment.setId(null);
-        comment.setScreen(screen);
-        comment.setHubUser(hubUser);
-
-        return commentRepository.save(comment);
+        saveComment.setId(null);
+        saveComment.setScreen(screen);
+        saveComment.setHubUser(hubUser);
+        return modelMapper.map(commentRepository.save(saveComment), CommentDTOLinks.class);
     }
 
     //1. Check if the comment passed as an argument actually has the screenId and commentId passed as arguments
     //2. Retrieve the comment and verify if it truly belongs to that screen
     //3. Check if the authenticated hubUser is the same as the one in the retrieved comment
-    public Comment update(Long screenId, Long commentId, Comment comment) {
+    public CommentDTOLinks update(Long screenId, Long commentId, CommentDTOBase comment) {
         //Get comment
-        Comment updatedComment = this.findById(commentId);
+        Comment updatedComment = this.findDomainById(commentId);
         //Get HubUser
         //1. Authenticate
         //2. Get hubUserId
@@ -87,23 +95,13 @@ public class CommentService {
 //          throw new IllegalArgumentException("Update isn't allow.");
 //      }
 
-        //Validate new body comment with screen id
-        if (comment.getScreen() != null && !comment.getScreen().getId().equals(screenId)) {
-            throw new IllegalArgumentException("Comment is incompatible with the indicated screen.");
-        }
-
-        //Validate new body comment with authenticate hubUser id
-//        if (comment.getHubUser() != null && !comment.getHubUser().getId().equals(hubUser.getId())){
-//            throw new IllegalArgumentException("Comment is incompatible with the indicated screen.");
-//        }
-
-        //No make sense, because comment don't have id (it's null)
-//        if (!comment.getId().equals(commentId)) {
-//            throw new IllegalArgumentException("Comment Id is incompatible with the indicated.");
-//        }
-
+        // Convert
         modelMapper.map(comment, updatedComment);
-        return commentRepository.save(updatedComment);
+        // Set id
+        //ATENÇÃO ISSO NAO SERÁ MAIS NECESSÁRIO
+        updatedComment.setId(commentId);
+        // Return response in correct format
+        return modelMapper.map(commentRepository.save(updatedComment),CommentDTOLinks.class);
     }
 
     public void delete(Long commentId) {

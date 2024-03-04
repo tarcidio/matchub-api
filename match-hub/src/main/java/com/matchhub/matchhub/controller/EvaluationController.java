@@ -4,6 +4,7 @@ import com.matchhub.matchhub.domain.Comment;
 import com.matchhub.matchhub.domain.Evaluation;
 import com.matchhub.matchhub.service.CommentService;
 import com.matchhub.matchhub.service.EvaluationService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Getter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 
+@Tag(name = "Evaluation", description = "")
 @RestController
 @RequestMapping(value = "/comments/{commentId}/evaluations")
 public class EvaluationController {

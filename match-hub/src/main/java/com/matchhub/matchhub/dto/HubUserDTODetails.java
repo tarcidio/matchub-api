@@ -1,6 +1,8 @@
-package com.matchhub.matchhub.domain.dto;
+package com.matchhub.matchhub.dto;
 
 import com.matchhub.matchhub.domain.enums.Hability;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,13 +15,19 @@ import java.util.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-// Example of used: HubUser Get
-public class HubUserDTODetails extends HubUserDTOBase {
+@Schema(name = "Full Hub User Schema")
+public class HubUserDTODetails extends HubUserDTOBaseId {
+    @Schema(description = "Level of skill that the user has with the most mastered champion", example = "")
     private Hability abilityLevel;
+    @Schema(description = "The most mastered champion")
     private ChampionDTOLinks mastery;
+    @Schema(description = "Account create datetime")
     private LocalDateTime creation;
+    @Schema(description = "Account update datetime")
     private LocalDateTime update;
+    @Schema(description = "Comments that the user has already made")
     private List<CommentDTOLinks> comments = new ArrayList<>();
+    @Schema(description = "Evaluations that the user has already made")
     private List<EvaluationDTOLinks> evaluations = new ArrayList<>();
 }
 

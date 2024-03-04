@@ -40,7 +40,7 @@ public class EvaluationService{
 
     public Evaluation save(Long commentId, Evaluation evaluation) {
         //Get Comment
-        Comment comment = commentService.findById(commentId);
+        Comment comment = commentService.findDomainById(commentId);
         //Get HubUser
         //1. Authenticate
         //2. Get hubUserId

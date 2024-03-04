@@ -1,6 +1,8 @@
-package com.matchhub.matchhub.domain.dto;
+package com.matchhub.matchhub.dto;
 
-import com.matchhub.matchhub.domain.enums.Hability;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,15 +13,22 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HubUserDTOBase {
-    private Long id;
+//    private Long id;
+    @Schema(description = "", example = "null")
     private String nickname;
+    @Schema(description = "", example = "null")
     private String firstname;
+    @Schema(description = "", example = "null")
     private String lastname;
+    @Schema(description = "", example = "null")
     private String email;
+    @Schema(description = "", example = "null")
     private String login;
+    @Schema(description = "", example = "null")
     private String password;
+    @Schema(description = "Indicates if user is moderator or not", example = "false")
     private Boolean moderator;
-    private Hability abilityLevel;
+//    private Hability abilityLevel;
 //    private Champion mastery;
 //    private LocalDateTime creation;
 //    private LocalDateTime update;

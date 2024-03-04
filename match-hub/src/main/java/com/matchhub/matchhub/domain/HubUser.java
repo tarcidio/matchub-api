@@ -2,6 +2,7 @@ package com.matchhub.matchhub.domain;
 
 import com.fasterxml.jackson.annotation.*;
 import com.matchhub.matchhub.domain.enums.Hability;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -39,6 +40,7 @@ public class HubUser {
     private Boolean moderator;
 
     @Enumerated(value = EnumType.STRING)
+    @Schema(description = "Skill level of the most mastered champion", example = "Hability.NORMAL")
     private Hability abilityLevel;
 
     // Champion with greatest mastery

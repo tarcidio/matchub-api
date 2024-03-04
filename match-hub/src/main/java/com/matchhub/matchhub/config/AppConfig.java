@@ -4,6 +4,7 @@ import com.matchhub.matchhub.domain.*;
 import com.matchhub.matchhub.domain.enums.EvaluationLevel;
 import com.matchhub.matchhub.domain.enums.Known;
 import com.matchhub.matchhub.repository.*;
+import io.swagger.v3.oas.models.OpenAPI;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;

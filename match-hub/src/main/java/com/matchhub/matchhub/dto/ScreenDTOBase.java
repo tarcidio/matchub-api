@@ -1,8 +1,10 @@
-package com.matchhub.matchhub.domain.dto;
+package com.matchhub.matchhub.dto;
 
 import com.matchhub.matchhub.domain.Champion;
 import com.matchhub.matchhub.domain.Comment;
 import com.matchhub.matchhub.domain.enums.Known;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,9 +19,9 @@ import java.util.TreeSet;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ScreenDTOBase {
-    private Long id;
+//    private Long id;
 //    private Champion spotlight;
-//    private Champion opponent;
+//    private Champion opponent
     private Known known;
 //    private SortedSet<Comment> comments = new TreeSet<>();
 }

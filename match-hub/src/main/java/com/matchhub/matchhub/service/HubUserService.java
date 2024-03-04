@@ -1,6 +1,10 @@
 package com.matchhub.matchhub.service;
 
 import com.matchhub.matchhub.domain.HubUser;
+import com.matchhub.matchhub.dto.HubUserDTOBase;
+import com.matchhub.matchhub.dto.HubUserDTODetails;
+import com.matchhub.matchhub.dto.HubUserDTOLinks;
+import com.matchhub.matchhub.dto.ScreenDTODetails;
 import com.matchhub.matchhub.repository.HubUserRepository;
 import com.matchhub.matchhub.service.exceptions.ObjectNotFoundException;
 import org.modelmapper.ModelMapper;
@@ -21,7 +25,8 @@ public class HubUserService{
         this.modelMapper = modelMapper;
     }
 
-    public HubUser findById(Long id) {
+    /*Get object. Internal use.*/
+    private HubUser findDomainById(Long id){
         Optional<HubUser> hubUser = hubUserRepository.findById(id);
         return hubUser.orElseThrow( () -> new ObjectNotFoundException(
                 "Object Not Found. " +
@@ -30,24 +35,46 @@ public class HubUserService{
         );
     }
 
-    public HubUser save(HubUser hubUser) {
-        /*Need authentication*/
-        hubUser.setId(null);
-        return hubUserRepository.save(hubUser);
+    public HubUserDTODetails findById(Long id) {
+        // Get information and check existence
+        Optional<HubUser> hubUser = hubUserRepository.findById(id);
+        HubUser hubUserDomain = hubUser.orElseThrow( () -> new ObjectNotFoundException(
+                "Object Not Found. " +
+                "Id: "  + id + "." +
+                "Type: " + HubUser.class.getName())
+        );
+        // Converter
+        HubUserDTODetails hubUserDTODetails = new HubUserDTODetails();
+        modelMapper.map(hubUserDomain, hubUserDTODetails);
+        // Return result
+        return hubUserDTODetails;
     }
 
-    public HubUser update(HubUser hubUser) {
-        HubUser updatedUser = this.findById(hubUser.getId());
+    public HubUserDTOLinks save(HubUserDTOBase hubUser) {
+        /*Need authentication*/
+        // Create repository instance
+        HubUser saveHubUser = new HubUser();
+        // Convert
+        modelMapper.map(hubUser, saveHubUser);
+        // Set null
+        saveHubUser.setId(null);
+        return modelMapper.map(hubUserRepository.save(saveHubUser), HubUserDTOLinks.class);
+    }
+
+    public HubUserDTOLinks update(Long hubUserId, HubUserDTOBase hubUser) {
+        //Get old user
+        HubUser updatedUser = this.findDomainById(hubUserId);
         /*Need authentication*/
         /*VERIFY IF USER HAVE PERMISSION*/
         modelMapper.map(hubUser, updatedUser);
-        return hubUserRepository.save(updatedUser);
+        return modelMapper.map(hubUserRepository.save(updatedUser), HubUserDTOLinks.class);
     }
 
-    public void delete(Long id) {
-        this.findById(id);
-        /*Need authentication*/
-        /*VERIFY IF USER HAVE PERMISSION*/
-        hubUserRepository.deleteById(id);
-    }
+    /* Disabled: User never wil be deleted */
+//    public void delete(Long id) {
+//        this.findById(id);
+//        /*Need authentication*/
+//        /*VERIFY IF USER HAVE PERMISSION*/
+//        hubUserRepository.deleteById(id);
+//    }
 }
