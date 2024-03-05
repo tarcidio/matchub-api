@@ -42,10 +42,11 @@ public class HubUser {
     private String login;
 
     @JsonIgnore
+    // @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
-    private Boolean moderator;
+    private Boolean moderator = false;
 
     @Enumerated(value = EnumType.STRING)
     @Schema(description = "Skill level of the most mastered champion", example = "Hability.NORMAL")

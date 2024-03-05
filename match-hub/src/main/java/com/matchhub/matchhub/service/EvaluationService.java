@@ -56,8 +56,6 @@ public class EvaluationService{
         HubUser hubUser = new HubUser();
         hubUser.setId(2L);
 
-        System.out.println("Chegou auqi");
-
         // Create repository instance
         Evaluation saveEvaluation = new Evaluation();
         // Convert

@@ -39,7 +39,7 @@ public class Evaluation {
 
     @Column(nullable = false)
     @Enumerated(EnumType.ORDINAL)
-    private EvaluationLevel level;
+    private EvaluationLevel level = EvaluationLevel.GOOD;
 
     @Temporal(TemporalType.TIMESTAMP)
     @CreationTimestamp

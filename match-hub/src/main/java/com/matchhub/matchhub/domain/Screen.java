@@ -29,7 +29,7 @@ public class Screen {
 
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
-    private Known known;
+    private Known known = Known.LOW;
 
     @OneToMany(mappedBy = "screen", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();

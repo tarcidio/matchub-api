@@ -25,8 +25,7 @@ public class HubUserService{
         this.modelMapper = modelMapper;
     }
 
-    /*Get object. Internal use.*/
-    private HubUser findDomainById(Long id){
+    public HubUser findDomainById(Long id){
         Optional<HubUser> hubUser = hubUserRepository.findById(id);
         return hubUser.orElseThrow( () -> new ObjectNotFoundException(
                 "Object Not Found. " +

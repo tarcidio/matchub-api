@@ -53,7 +53,7 @@ public class Comment{
     private LocalTime updateTime;
 
     @Column(nullable = false)
-    private String text;
+    private String text = "";
 
     @OneToMany(mappedBy = "comment")
     private List<Evaluation> evaluations = new ArrayList<>();

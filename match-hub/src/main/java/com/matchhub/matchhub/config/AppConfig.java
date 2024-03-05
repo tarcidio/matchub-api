@@ -52,10 +52,16 @@ public class AppConfig {
             //Create User
             HubUser Tarcidio = new HubUser();
             Tarcidio.setNickname("Tarcidio");
+            Tarcidio.setEmail("tarcidio@gmail.com");
+            Tarcidio.setLogin("tarcidio");
             HubUser Augusto = new HubUser();
             Augusto.setNickname("Augusto");
+            Augusto.setEmail("augusto@gmail.com");
+            Augusto.setLogin("augusto");
             HubUser Gabriel = new HubUser();
             Gabriel.setNickname("Gabriel");
+            Gabriel.setEmail("gabriel@gmail.com");
+            Gabriel.setLogin("gabriel");
             hubUserRepository.saveAll(List.of(Tarcidio, Augusto, Gabriel));
 
             //Create Screens

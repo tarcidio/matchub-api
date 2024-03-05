@@ -34,7 +34,6 @@ public class CommentService {
         this.modelMapper = modelMapper;
     }
 
-    /*Get object. Internal use.*/
     public Comment findDomainById(Long id){
         Optional<Comment> comment = commentRepository.findById(id);
         return comment.orElseThrow(() -> new ObjectNotFoundException(
