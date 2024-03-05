@@ -9,6 +9,9 @@ import com.matchhub.matchhub.service.exceptions.ObjectNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+//import org.springframework.security.core.userdetails.User;
+//import org.springframework.security.core.Authentication;
+//import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Optional;
 
@@ -59,13 +62,17 @@ public class CommentService {
         //Get Screen
         Screen screen = screenService.findDomainById(screenId);
 
-        //Get HubUser
-        //1. Authenticate
-        //2. Get hubUserId
-        //3. Use HubUserService to get object
-        // Provisional:
+        // Get User Logged
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        HubUser hubUser = null;
+//        if (authentication != null && authentication.getPrincipal() instanceof User hubUserDetails) {
+//            String hubUserUsername = hubUserDetails.getUsername();
+//            hubUser = hubUserService.findByUsername(hubUserUsername);
+//        }
         HubUser hubUser = new HubUser();
         hubUser.setId(2L);
+
+
 
         // Create repository instance
         Comment saveComment = new Comment();

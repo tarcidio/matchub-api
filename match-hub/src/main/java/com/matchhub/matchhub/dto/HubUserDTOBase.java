@@ -23,8 +23,8 @@ public class HubUserDTOBase {
     @Schema(description = "", example = "null")
     private String email;
     @Schema(description = "", example = "null")
-    private String login;
-    @Schema(description = "", example = "null")
+    private String username;
+    @Schema(description = "", example = "RETIRE ESSE CAMPO DO DTO E TIRE O COMENTARIO DO NOT NULL DO DOMAIN")
     private String password;
     @Schema(description = "Indicates if user is moderator or not", example = "false")
     private Boolean moderator;

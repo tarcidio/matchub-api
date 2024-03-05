@@ -53,15 +53,18 @@ public class AppConfig {
             HubUser Tarcidio = new HubUser();
             Tarcidio.setNickname("Tarcidio");
             Tarcidio.setEmail("tarcidio@gmail.com");
-            Tarcidio.setLogin("tarcidio");
+            Tarcidio.setUsername("tarcidio");
+            Tarcidio.setPassword("123");
             HubUser Augusto = new HubUser();
             Augusto.setNickname("Augusto");
             Augusto.setEmail("augusto@gmail.com");
-            Augusto.setLogin("augusto");
+            Augusto.setUsername("augusto");
+            Augusto.setPassword("123");
             HubUser Gabriel = new HubUser();
             Gabriel.setNickname("Gabriel");
             Gabriel.setEmail("gabriel@gmail.com");
-            Gabriel.setLogin("gabriel");
+            Gabriel.setUsername("gabriel");
+            Gabriel.setPassword("123");
             hubUserRepository.saveAll(List.of(Tarcidio, Augusto, Gabriel));
 
             //Create Screens

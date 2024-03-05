@@ -69,6 +69,15 @@ public class HubUserService{
         return modelMapper.map(hubUserRepository.save(updatedUser), HubUserDTOLinks.class);
     }
 
+    public HubUser findByUsername(String hubUserUsername) {
+        Optional<HubUser> hubUser = hubUserRepository.findByUsername(hubUserUsername);
+        return hubUser.orElseThrow( () -> new ObjectNotFoundException(
+                "Object Not Found. " +
+                        "Username: "  + hubUserUsername + "." +
+                        "Type: " + HubUser.class.getName())
+        );
+    }
+
     /* Disabled: User never wil be deleted */
 //    public void delete(Long id) {
 //        this.findById(id);

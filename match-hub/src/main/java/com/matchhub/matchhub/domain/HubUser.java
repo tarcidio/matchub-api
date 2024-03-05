@@ -18,7 +18,7 @@ import java.util.*;
 @Entity
 @Table(name = "hubuser", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"email"}),
-        @UniqueConstraint(columnNames = {"login"})
+        @UniqueConstraint(columnNames = {"username"})
 })
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
@@ -39,10 +39,10 @@ public class HubUser {
     private String email;
 
     @Column(nullable = false)
-    private String login;
+    private String username;
 
     @JsonIgnore
-    // @Column(nullable = false)
+    @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
