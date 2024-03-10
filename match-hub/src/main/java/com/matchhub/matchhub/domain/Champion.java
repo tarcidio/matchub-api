@@ -5,14 +5,16 @@ import lombok.*;
 
 import java.util.Objects;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Entity
+
 @Table(name = "champion", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"name"})
 })
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
 public class Champion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,6 +24,7 @@ public class Champion {
     private String name;
 
     private Byte[] img;
+
     //Note: don't list champion user either screen. Then, it don't bidirectional
 
     @Override

@@ -1,31 +1,29 @@
 package com.matchhub.matchhub.controller;
 
-import com.matchhub.matchhub.domain.HubUser;
 import com.matchhub.matchhub.dto.HubUserDTOBase;
 import com.matchhub.matchhub.dto.HubUserDTODetails;
 import com.matchhub.matchhub.dto.HubUserDTOLinks;
+import com.matchhub.matchhub.security.dto.ChangePasswordDTO;
 import com.matchhub.matchhub.service.HubUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.security.Principal;
 
 @Tag(name = "HubUser", description = "")
 @RestController
-@RequestMapping(value = "/users")
+@RequestMapping(value = "/hubusers")
+@RequiredArgsConstructor
 public class HubUserController {
-
     private final HubUserService hubUserService;
 
-    @Autowired
-    public HubUserController(HubUserService hubUserService){
-        this.hubUserService = hubUserService;
-    }
-
+    //Get user
     @Operation(summary = "Get User By ID", description = "Return only one user")
     @GetMapping(value = "/{id}")
     public ResponseEntity<HubUserDTODetails> findById(@PathVariable Long id){
@@ -33,28 +31,20 @@ public class HubUserController {
         return ResponseEntity.ok().body(hubUser);
     }
 
-    @PostMapping
-    public ResponseEntity<HubUserDTOLinks> create(@RequestBody HubUserDTOBase hubUser){
-        HubUserDTOLinks savedHubUser = hubUserService.save(hubUser);
-        URI uri = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(savedHubUser.getId())
-                .toUri();
-        return ResponseEntity.created(uri).body(savedHubUser);
-    }
-
-    @PutMapping(value = "/{id}")
-    public ResponseEntity<HubUserDTOLinks> update(@PathVariable Long id,
-                                                  @RequestBody HubUserDTOBase hubUser){
-        HubUserDTOLinks updatedHubUser = hubUserService.update(id, hubUser);
+    //Update user
+    @PutMapping
+    public ResponseEntity<HubUserDTOLinks> update(@RequestBody HubUserDTOBase hubUser,
+                                                  Principal connectedHubUser){
+        HubUserDTOLinks updatedHubUser = hubUserService.update(hubUser, connectedHubUser);
         return ResponseEntity.ok().body(updatedHubUser);
     }
 
-    /* Disabled: User never wil be deleted */
-//    @DeleteMapping(value = "/{id}")
-//    public ResponseEntity<Void> delete(@PathVariable Long id){
-//        hubUserService.delete(id);
-//        return ResponseEntity.noContent().build();
-//    }
+    // Change password
+    @PatchMapping
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordDTO request,
+                                            Principal connectedHubUser) {
+        hubUserService.changePassword(request, connectedHubUser);
+        return ResponseEntity.ok().build();
+    }
+
 }

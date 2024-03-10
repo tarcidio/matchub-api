@@ -2,17 +2,21 @@ package com.matchhub.matchhub.domain;
 
 import com.fasterxml.jackson.annotation.*;
 import com.matchhub.matchhub.domain.enums.Hability;
+import com.matchhub.matchhub.domain.enums.Role;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -23,10 +27,24 @@ import java.util.*;
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
-public class HubUser {
+public class HubUser implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
+    private String username;
+
+    @JsonIgnore
+    @Column(nullable = false)
+    private String password;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.HUBUSER;
+
+    @Column(nullable = false)
+    private Boolean blocked = false;
 
     @Column(nullable = false)
     private String nickname;
@@ -38,18 +56,7 @@ public class HubUser {
     @Column(nullable = false)
     private String email;
 
-    @Column(nullable = false)
-    private String username;
-
-    @JsonIgnore
-    @Column(nullable = false)
-    private String password;
-
-    @Column(nullable = false)
-    private Boolean moderator = false;
-
     @Enumerated(value = EnumType.STRING)
-    @Schema(description = "Skill level of the most mastered champion", example = "Hability.NORMAL")
     private Hability abilityLevel;
 
     // Champion with greatest mastery
@@ -84,5 +91,28 @@ public class HubUser {
     @Override
     public int hashCode() {
         return Objects.hash(id, email);
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() { return role.getAuthorities(); }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

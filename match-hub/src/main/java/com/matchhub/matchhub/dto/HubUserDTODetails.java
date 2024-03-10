@@ -1,7 +1,7 @@
 package com.matchhub.matchhub.dto;
 
 import com.matchhub.matchhub.domain.enums.Hability;
-import io.swagger.v3.oas.annotations.Hidden;
+import com.matchhub.matchhub.domain.enums.Role;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,7 +17,15 @@ import java.util.*;
 @AllArgsConstructor
 @Schema(name = "Full Hub User Schema")
 public class HubUserDTODetails extends HubUserDTOBaseId {
-    @Schema(description = "Level of skill that the user has with the most mastered champion", example = "")
+//    @Schema(description = "Login")
+//    private String username;
+//    @Schema(description = "Password")
+//    private String password;
+    @Schema(description = "References about permission to comment")
+    private boolean blocked = false;
+    @Schema(description = "HubUser Role (Admin, Moderator or User)")
+    private Role role = Role.HUBUSER;
+    @Schema(description = "Level of skill that the user has with the most mastered champion")
     private Hability abilityLevel;
     @Schema(description = "The most mastered champion")
     private ChampionDTOLinks mastery;

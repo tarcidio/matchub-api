@@ -1,10 +1,12 @@
 package com.matchhub.matchhub.dto;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -13,4 +15,8 @@ import lombok.Setter;
 public class CommentDTOLinks extends CommentDTOBaseId {
     private Long hubUserId;
     private Long screenId;
+    private LocalDate creationDate;
+    private LocalTime creationTime;
+    private LocalDate updateDate;
+    private LocalTime updateTime;
 }

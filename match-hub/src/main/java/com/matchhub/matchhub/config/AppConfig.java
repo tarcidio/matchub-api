@@ -3,35 +3,29 @@ package com.matchhub.matchhub.config;
 import com.matchhub.matchhub.domain.*;
 import com.matchhub.matchhub.domain.enums.EvaluationLevel;
 import com.matchhub.matchhub.domain.enums.Known;
+import com.matchhub.matchhub.domain.enums.Role;
 import com.matchhub.matchhub.repository.*;
-import io.swagger.v3.oas.models.OpenAPI;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
+import javax.sql.DataSource;
 import java.util.*;
 
 @Configuration
+@RequiredArgsConstructor
 public class AppConfig {
-
+    private final PasswordEncoder passwordEncoder;
     private final ScreenRepository screenRepository;
     private final ChampionRepository championRepository;
     private final HubUserRepository hubUserRepository;
     private final CommentRepository commentRepository;
     private final EvaluationRepository evaluationRepository;
-
-    @Autowired
-    public AppConfig(ScreenRepository screenRepository, ChampionRepository championRepository,
-                     HubUserRepository hubUserRepository, CommentRepository commentRepository,
-                     EvaluationRepository evaluationRepository) {
-        this.screenRepository = screenRepository;
-        this.championRepository = championRepository;
-        this.hubUserRepository = hubUserRepository;
-        this.commentRepository = commentRepository;
-        this.evaluationRepository = evaluationRepository;
-    }
 
     //ModelMapper: automate the object mapping process
     @Bean
@@ -42,77 +36,128 @@ public class AppConfig {
     @Bean
     public CommandLineRunner startDB() {
         return args -> {
-            //Create Champions
-            Champion Gragas = new Champion(null, "Gragas", null);
-            Champion Darius = new Champion(null, "Darius", null);
-            Champion Renekton = new Champion(null, "Renekton", null);
-            Champion Janna = new Champion(null, "Janna", null);
-            championRepository.saveAll(List.of(Gragas, Darius, Renekton, Janna));
-
-            //Create User
-            HubUser Tarcidio = new HubUser();
-            Tarcidio.setNickname("Tarcidio");
-            Tarcidio.setEmail("tarcidio@gmail.com");
-            Tarcidio.setUsername("tarcidio");
-            Tarcidio.setPassword("123");
-            HubUser Augusto = new HubUser();
-            Augusto.setNickname("Augusto");
-            Augusto.setEmail("augusto@gmail.com");
-            Augusto.setUsername("augusto");
-            Augusto.setPassword("123");
-            HubUser Gabriel = new HubUser();
-            Gabriel.setNickname("Gabriel");
-            Gabriel.setEmail("gabriel@gmail.com");
-            Gabriel.setUsername("gabriel");
-            Gabriel.setPassword("123");
+            //Create Users
+            HubUser Tarcidio = HubUser.builder().
+                    nickname("tarca").
+                    firstname("tarcidio").
+                    lastname("antonio").
+                    email("tarcidio@gmail.com").
+                    username("tarcidio").
+                    blocked(false).
+                    password(passwordEncoder.encode("123")).
+                    role(Role.ADMIN).
+                    build();
+            HubUser Augusto = HubUser.builder().
+                    nickname("Augusto").
+                    email("augusto@gmail.com").
+                    username("augusto").
+                    blocked(false).
+                    password(passwordEncoder.encode("123")).
+                    role(Role.MODERATOR).
+                    build();
+            HubUser Gabriel = HubUser.builder().
+                    nickname("Gabriel").
+                    email("gabriel@gmail.com").
+                    username("gabriel").
+                    blocked(false).
+                    password(passwordEncoder.encode("123")).
+                    role(Role.HUBUSER).
+                    build();
             hubUserRepository.saveAll(List.of(Tarcidio, Augusto, Gabriel));
 
+            //Create Champions
+            Champion Gragas = Champion.builder().name("Gragas").build();
+            Champion Darius = Champion.builder().name("Darius").build();
+            Champion Renekton = Champion.builder().name("Renekton").build();
+            Champion Janna = Champion.builder().name("Janna").build();
+            championRepository.saveAll(List.of(Gragas, Darius, Renekton, Janna));
+
             //Create Screens
-            Screen GragasVsDarius = new Screen(null, Gragas, Darius, Known.MEDIUM, new ArrayList<>());
-            Screen DariusVsGragas = new Screen(null, Darius, Gragas, Known.MEDIUM, new ArrayList<>());
-            Screen DariusVsRenekton = new Screen(null, Darius, Renekton, Known.HIGH, new ArrayList<>());
-            Screen RenektonVsDarius = new Screen(null, Renekton, Darius, Known.HIGH, new ArrayList<>());
-            Screen JannaVsGragas = new Screen(null, Janna, Gragas, Known.LOW, new ArrayList<>());
-            Screen GragasVsJanna = new Screen(null, Gragas, Janna, Known.LOW, new ArrayList<>());
+            Screen GragasVsDarius = Screen.builder().
+                    spotlight(Gragas).
+                    opponent(Darius).
+                    known(Known.MEDIUM).
+                    build();
+            Screen DariusVsGragas = Screen.builder().
+                    spotlight(Darius).
+                    opponent(Gragas).
+                    known(Known.MEDIUM).
+                    build();
+            Screen DariusVsRenekton = Screen.builder().
+                    spotlight(Darius).
+                    opponent(Renekton).
+                    known(Known.HIGH).
+                    build();
+            Screen RenektonVsDarius = Screen.builder().
+                    spotlight(Renekton).
+                    opponent(Darius).
+                    known(Known.HIGH).
+                    build();
+            Screen JannaVsGragas = Screen.builder().
+                    spotlight(Janna).
+                    opponent(Gragas).
+                    known(Known.LOW).
+                    build();
+            Screen GragasVsJanna = Screen.builder().
+                    spotlight(Gragas).
+                    opponent(Janna).
+                    known(Known.LOW).
+                    build();
             screenRepository.saveAll(List.of(GragasVsDarius, DariusVsGragas,
                     DariusVsRenekton, RenektonVsDarius, JannaVsGragas, GragasVsJanna));
 
-            //Create Comments
+            // Create Comments
             // Screen GragasVsDarius
-            Comment TarcidioGragasVsDarius = new Comment(null, Tarcidio, GragasVsDarius,
-                    null, null, null, null,
-                    "Gragas precisa jogar muito agressivo nesta rota",
-                    new ArrayList<>());
-            Comment GabrielGragasVsDarius = new Comment(null, Gabriel, GragasVsDarius,
-                    null, null, null, null,
-                    "Gragas precisa jogar recuado nesta rota",
-                    new ArrayList<>());
+            Comment TarcidioGragasVsDarius = Comment.builder().
+                    hubUser(Tarcidio).
+                    screen(GragasVsDarius).
+                    text("Gragas precisa jogar muito agressivo nesta rota").
+                    build();
+            Comment GabrielGragasVsDarius = Comment.builder().
+                    hubUser(Gabriel).
+                    screen(GragasVsDarius).
+                    text("Gragas precisa jogar recuado nesta rota").
+                    build();
             // Screen JannaVsGragas
-            Comment TarcidioJannaVsGragas = new Comment(null, Tarcidio, JannaVsGragas,
-                    null, null, null, null,
-                    "Janna tem vantagem",
-                    new ArrayList<>());
-            Comment AugustoJannaVsGragas = new Comment(null, Augusto, JannaVsGragas,
-                    null, null, null, null,
-                    "Janna não faz absolutamente nada",
-                    new ArrayList<>());
+            Comment TarcidioJannaVsGragas = Comment.builder().
+                    hubUser(Tarcidio).
+                    screen(JannaVsGragas).
+                    text("Janna tem vantagem").
+                    build();
+            Comment AugustoJannaVsGragas = Comment.builder().
+                    hubUser(Augusto).
+                    screen(JannaVsGragas).
+                    text("Janna não faz absolutamente nada").
+                    build();
             // Screen RenektonVsDarius
-            Comment GabrielRenektonVsDarius = new Comment(null, Gabriel, RenektonVsDarius,
-                    null, null, null, null,
-                    "Ambos precisar tem muito cuidado",
-                    new ArrayList<>());
-            Comment AugustoRenektonVsDarius = new Comment(null, Augusto, RenektonVsDarius,
-                    null, null, null, null,
-                    "Parta para cima level 2",
-                    new ArrayList<>());
+            Comment GabrielRenektonVsDarius = Comment.builder().
+                    hubUser(Gabriel).
+                    screen(RenektonVsDarius).
+                    text("Ambos precisar tem muito cuidado").
+                    build();
+            Comment AugustoRenektonVsDarius = Comment.builder().
+                    hubUser(Augusto).
+                    screen(RenektonVsDarius).
+                    text("Parta para cima level 2").
+                    build();
             commentRepository.saveAll(List.of(TarcidioGragasVsDarius, GabrielGragasVsDarius,
                     TarcidioJannaVsGragas, AugustoJannaVsGragas, GabrielRenektonVsDarius,
                     AugustoRenektonVsDarius));
 
             //Create Evaluation
-            Evaluation e1 = new Evaluation(null, Augusto, TarcidioGragasVsDarius, EvaluationLevel.BAD, null, null);
-            Evaluation e2 = new Evaluation(null, Augusto, GabrielGragasVsDarius, EvaluationLevel.GOOD, null, null);
+            Evaluation e1 = Evaluation.builder().
+                    hubUser(Augusto).
+                    comment(TarcidioGragasVsDarius).
+                    level(EvaluationLevel.BAD).
+                    build();
+            Evaluation e2 = Evaluation.builder().
+                    hubUser(Augusto).
+                    comment(GabrielGragasVsDarius).
+                    level(EvaluationLevel.GOOD).
+                    build();
             evaluationRepository.saveAll(List.of(e1,e2));
         };
     }
+
+
 }

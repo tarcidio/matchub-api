@@ -14,11 +14,12 @@ import java.util.*;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "comment", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"hubUser_id", "screen_id", "creationDate"})
+        @UniqueConstraint(columnNames = {"hubUser_id", "screen_id", "creationDate", "creationTime"})
 })
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
@@ -55,7 +56,7 @@ public class Comment{
     @Column(nullable = false)
     private String text = "";
 
-    @OneToMany(mappedBy = "comment")
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL)
     private List<Evaluation> evaluations = new ArrayList<>();
 
     @Override

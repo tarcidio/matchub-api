@@ -1,6 +1,7 @@
 package com.matchhub.matchhub.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.matchhub.matchhub.domain.enums.Role;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -22,12 +23,8 @@ public class HubUserDTOBase {
     private String lastname;
     @Schema(description = "", example = "null")
     private String email;
-    @Schema(description = "", example = "null")
-    private String username;
-    @Schema(description = "", example = "RETIRE ESSE CAMPO DO DTO E TIRE O COMENTARIO DO NOT NULL DO DOMAIN")
-    private String password;
-    @Schema(description = "Indicates if user is moderator or not", example = "false")
-    private Boolean moderator;
+//    private String username;
+//    private Role role = Role.HUBUSER;
 //    private Hability abilityLevel;
 //    private Champion mastery;
 //    private LocalDateTime creation;
