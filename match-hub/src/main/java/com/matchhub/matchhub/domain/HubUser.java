@@ -2,6 +2,7 @@ package com.matchhub.matchhub.domain;
 
 import com.fasterxml.jackson.annotation.*;
 import com.matchhub.matchhub.domain.enums.Hability;
+import com.matchhub.matchhub.domain.enums.Region;
 import com.matchhub.matchhub.domain.enums.Role;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
@@ -43,6 +44,8 @@ public class HubUser implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role = Role.HUBUSER;
 
+    private Region region;
+
     @Column(nullable = false)
     private Boolean blocked = false;
 
@@ -52,6 +55,8 @@ public class HubUser implements UserDetails {
     private String firstname;
 
     private String lastname;
+
+    private String summonerName;
 
     @Column(nullable = false)
     private String email;
@@ -79,6 +84,15 @@ public class HubUser implements UserDetails {
     /* Goal: visualize all e evaluation*/
     @OneToMany(mappedBy = "hubUser", cascade = CascadeType.ALL)
     private List<Evaluation> evaluations = new ArrayList<>();
+
+    public void setAbilityLevelByPoints(Integer points){
+        if(points < 90000)
+            abilityLevel = Hability.NORMAL;
+        else if(points < 500000)
+            abilityLevel = Hability.SKILLED;
+        else
+            abilityLevel = Hability.MONOCHAMPION;
+    }
 
     @Override
     public boolean equals(Object o) {

@@ -17,6 +17,16 @@ public class ChampionService {
     private final ChampionRepository championRepository;
     private final ModelMapper modelMapper;
 
+    public Champion findDomainById(Long id) {
+        // Get information and check existence
+        Optional<Champion> champion = championRepository.findById(id);
+        return champion.orElseThrow( () -> new ObjectNotFoundException(
+                "Object Not Found. " +
+                        "Id: "  + id + "." +
+                        "Type: " + Champion.class.getName())
+        );
+    }
+
     public ChampionDTODetails findById(Long id) {
         // Get information and check existence
         Optional<Champion> champion = championRepository.findById(id);

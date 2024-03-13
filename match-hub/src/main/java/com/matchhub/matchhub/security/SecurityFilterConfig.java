@@ -58,6 +58,7 @@ public class SecurityFilterConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req ->
                         req.requestMatchers(WHITE_LIST_URL).permitAll()
+                            /* ROLE: HUB USERS */
                                 /* HUB USERS */
                                 // Roles
                             .requestMatchers("/hubusers/**").
@@ -100,7 +101,14 @@ public class SecurityFilterConfig {
                                 // Authority
                             .requestMatchers(GET, "/champions/**").
                                 hasAnyAuthority(HUBUSER_READ.name())
-                                /* MODERATORS */
+                                /* RSO */
+                                // Roles
+                            .requestMatchers("/rso/**").
+                                hasAnyRole(ADMIN.name(), MODERATOR.name(), HUBUSER.name())
+                                // Authority
+                            .requestMatchers(GET, "/rso/**").
+                                hasAnyAuthority(HUBUSER_READ.name())
+                            /* ROLE: MODERATORS */
                                 // Roles
                             .requestMatchers("/moderators/**").
                                 hasAnyRole(ADMIN.name(), MODERATOR.name())
@@ -109,7 +117,7 @@ public class SecurityFilterConfig {
                                 hasAnyAuthority(MODERATOR_UPDATE.name())
                             .requestMatchers(DELETE, "/moderators/**").
                                 hasAnyAuthority(MODERATOR_DELETE.name())
-                                /* ADMINS */
+                            /* ROLE: ADMINS */
                                 // Roles
                             .requestMatchers("/admins/**").
                                 hasAnyRole(ADMIN.name())

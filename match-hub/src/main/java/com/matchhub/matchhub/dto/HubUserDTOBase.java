@@ -1,6 +1,7 @@
 package com.matchhub.matchhub.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.matchhub.matchhub.domain.enums.Region;
 import com.matchhub.matchhub.domain.enums.Role;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -23,6 +24,8 @@ public class HubUserDTOBase {
     private String lastname;
     @Schema(description = "", example = "null")
     private String email;
+    @Schema(description = "", example = "null")
+    private Region region;
 //    private String username;
 //    private Role role = Role.HUBUSER;
 //    private Hability abilityLevel;
