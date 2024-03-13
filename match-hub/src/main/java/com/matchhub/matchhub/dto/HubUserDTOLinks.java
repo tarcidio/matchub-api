@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 public class HubUserDTOLinks extends HubUserDTOBaseId{
+    @Schema(description = "Name in Riot Account")
+    private String summonerName;
     @Schema(description = "References about permission to comment")
     private boolean blocked = false;
     @Schema(description = "HubUser Role (Admin, Moderator or User)")

@@ -21,6 +21,8 @@ public class HubUserDTODetails extends HubUserDTOBaseId {
 //    private String username;
 //    @Schema(description = "Password")
 //    private String password;
+    @Schema(description = "Name in Riot Account")
+    private String summonerName;
     @Schema(description = "References about permission to comment")
     private boolean blocked = false;
     @Schema(description = "HubUser Role (Admin, Moderator or User)")
