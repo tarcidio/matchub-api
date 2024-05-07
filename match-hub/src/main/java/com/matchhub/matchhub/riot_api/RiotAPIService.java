@@ -85,6 +85,7 @@ public class RiotAPIService {
         HubUser logged = (HubUser) ((UsernamePasswordAuthenticationToken) connectedHubUser).getPrincipal();
 
         // Get Continent and Region
+        // Fix: nullable
         Region region = logged.getRegion();
         Continent continent = region.getContinent();
 

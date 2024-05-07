@@ -4,12 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.matchhub.matchhub.domain.HubUser;
 import com.matchhub.matchhub.domain.Token;
 import com.matchhub.matchhub.domain.enums.TokenType;
-import com.matchhub.matchhub.dto.HubUserDTOLinks;
 import com.matchhub.matchhub.repository.HubUserRepository;
 import com.matchhub.matchhub.repository.TokenRepository;
 import com.matchhub.matchhub.security.dto.AuthResponseDTO;
 import com.matchhub.matchhub.security.dto.LoginDTO;
-import com.matchhub.matchhub.security.dto.SingUpDTO;
+import com.matchhub.matchhub.security.dto.SignUpDTO;
 import com.matchhub.matchhub.security.jwt.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -45,8 +44,8 @@ public class AuthService {
         tokenRepository.save(token);
     }
 
-    //SingUp
-    public AuthResponseDTO register(SingUpDTO request) {
+    //SignUp
+    public AuthResponseDTO register(SignUpDTO request) {
         // Transfer information
         HubUser newHubUser = modelMapper.map(request, HubUser.class);
         // Set id null (good practice)

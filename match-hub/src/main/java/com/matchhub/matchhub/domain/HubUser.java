@@ -44,6 +44,7 @@ public class HubUser implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role = Role.HUBUSER;
 
+    @Column(nullable = true)
     private Region region;
 
     @Column(nullable = false)

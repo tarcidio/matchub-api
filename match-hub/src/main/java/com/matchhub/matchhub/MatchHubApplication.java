@@ -17,5 +17,4 @@ public class MatchHubApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(MatchHubApplication.class, args);
 	}
-
 }

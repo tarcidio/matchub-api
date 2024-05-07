@@ -2,7 +2,7 @@ package com.matchhub.matchhub.security.auth;
 
 import com.matchhub.matchhub.security.dto.AuthResponseDTO;
 import com.matchhub.matchhub.security.dto.LoginDTO;
-import com.matchhub.matchhub.security.dto.SingUpDTO;
+import com.matchhub.matchhub.security.dto.SignUpDTO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,9 +23,9 @@ public class AuthController {
 
     private final AuthService service;
 
-    //SingUp
+    //SignUp
     @PostMapping("/register")
-    public ResponseEntity<AuthResponseDTO> register(@RequestBody SingUpDTO request) {
+    public ResponseEntity<AuthResponseDTO> register(@RequestBody SignUpDTO request) {
         return ResponseEntity.ok(service.register(request));
     }
 

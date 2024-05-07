@@ -1,8 +1,5 @@
 package com.matchhub.matchhub.security.dto;
 
-import com.matchhub.matchhub.domain.enums.Region;
-import com.matchhub.matchhub.domain.enums.Role;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SingUpDTO {
+public class SignUpDTO {
     private String username;
     private String password;
 
@@ -20,5 +17,4 @@ public class SingUpDTO {
     private String firstname;
     private String lastname;
     private String email;
-    private Region region;
 }
