@@ -16,7 +16,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import javax.sql.DataSource;
+import java.io.File;
 import java.util.*;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Configuration
 @RequiredArgsConstructor
@@ -37,6 +41,30 @@ public class AppConfig {
     @Bean
     public WebClient webClient(WebClient.Builder builder) {
         return builder.build();
+    }
+
+    private static List<String> championsNames(String dir) {
+        List<String> fileNames = new ArrayList<>();
+
+        // Creates a File object representing the directory
+        File currentDirectory = new File(dir);
+
+        // Checks if the directory exists
+        if (currentDirectory.exists() && currentDirectory.isDirectory()) {
+            // List of files in the directory
+            File[] files = currentDirectory.listFiles();
+
+            // Checks if there are files in the directory
+            if (files != null) {
+                // Iterates over the files and adds their names to the list
+
+                for (File file : files) {
+                    fileNames.add(file.getName());
+                }
+            }
+        }
+
+        return fileNames;
     }
 
     @Bean
@@ -71,14 +99,44 @@ public class AppConfig {
                     build();
             hubUserRepository.saveAll(List.of(Tarcidio, Augusto, Gabriel));
 
-            //Create Champions
+            // Get champions names
+            List<String> championsNames = championsNames("src/main/resources/json/champions");
+
+            // List champions references
+            List<Champion> champions = new ArrayList<>();
+
+            // Create and save all champions
+            for(String name: championsNames){
+                Champion champion = Champion.builder().name(name).build();
+                champions.add(champion);
+            }
+            championRepository.saveAll(champions);
+
+            // List screen references
+            List<Screen> screens = new ArrayList<>();
+
+            // Create and save all screens
+            for(Champion spotlight: champions){
+                // Create all champions
+                for(Champion opponent: champions){
+                    Screen screen = Screen.builder().
+                            spotlight(spotlight).
+                            opponent(opponent).
+                            known(Known.LOW).
+                            build();
+                    screens.add(screen);
+                }
+            }
+            screenRepository.saveAll(screens);
+
+            /*
+            //Create Champions to create comments and evaluations
             Champion Gragas = Champion.builder().name("Gragas").build();
             Champion Darius = Champion.builder().name("Darius").build();
             Champion Renekton = Champion.builder().name("Renekton").build();
             Champion Janna = Champion.builder().name("Janna").build();
-            championRepository.saveAll(List.of(Gragas, Darius, Renekton, Janna));
 
-            //Create Screens
+            //Create Screens to create comments and evaluations
             Screen GragasVsDarius = Screen.builder().
                     spotlight(Gragas).
                     opponent(Darius).
@@ -109,8 +167,6 @@ public class AppConfig {
                     opponent(Janna).
                     known(Known.LOW).
                     build();
-            screenRepository.saveAll(List.of(GragasVsDarius, DariusVsGragas,
-                    DariusVsRenekton, RenektonVsDarius, JannaVsGragas, GragasVsJanna));
 
             // Create Comments
             // Screen GragasVsDarius
@@ -161,7 +217,7 @@ public class AppConfig {
                     comment(GabrielGragasVsDarius).
                     level(EvaluationLevel.GOOD).
                     build();
-            evaluationRepository.saveAll(List.of(e1,e2));
+            evaluationRepository.saveAll(List.of(e1,e2));*/
         };
     }
 
