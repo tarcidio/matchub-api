@@ -17,7 +17,6 @@ import java.util.Objects;
 @Entity
 public class Champion {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)

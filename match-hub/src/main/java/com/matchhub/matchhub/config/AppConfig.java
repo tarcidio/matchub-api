@@ -43,30 +43,6 @@ public class AppConfig {
         return builder.build();
     }
 
-    private static List<String> championsNames(String dir) {
-        List<String> fileNames = new ArrayList<>();
-
-        // Creates a File object representing the directory
-        File currentDirectory = new File(dir);
-
-        // Checks if the directory exists
-        if (currentDirectory.exists() && currentDirectory.isDirectory()) {
-            // List of files in the directory
-            File[] files = currentDirectory.listFiles();
-
-            // Checks if there are files in the directory
-            if (files != null) {
-                // Iterates over the files and adds their names to the list
-
-                for (File file : files) {
-                    fileNames.add(file.getName());
-                }
-            }
-        }
-
-        return fileNames;
-    }
-
     @Bean
     public CommandLineRunner startDB() {
         return args -> {
@@ -99,15 +75,19 @@ public class AppConfig {
                     build();
             hubUserRepository.saveAll(List.of(Tarcidio, Augusto, Gabriel));
 
-            // Get champions names
-            List<String> championsNames = championsNames("src/main/resources/json/champions");
+            // Get champions id and names
+            List<AbstractMap.SimpleEntry<Long, String>> championsIdsNames =
+                    new JsonExtractor("src/main/resources/json/champions").extractChampionsInfo();
 
             // List champions references
             List<Champion> champions = new ArrayList<>();
 
             // Create and save all champions
-            for(String name: championsNames){
-                Champion champion = Champion.builder().name(name).build();
+            for(AbstractMap.SimpleEntry<Long, String> championIdName : championsIdsNames){
+                Champion champion = Champion.builder().
+                        id(championIdName.getKey()).
+                        name(championIdName.getValue()).
+                        build();
                 champions.add(champion);
             }
             championRepository.saveAll(champions);

@@ -10,10 +10,12 @@ import com.matchhub.matchhub.security.dto.AuthResponseDTO;
 import com.matchhub.matchhub.security.dto.LoginDTO;
 import com.matchhub.matchhub.security.dto.SignUpDTO;
 import com.matchhub.matchhub.security.jwt.JwtService;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -33,6 +35,9 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final ModelMapper modelMapper;
 
+    @Value("${application.security.jwt.refresh-token.expiration}")
+    private long refreshExpiration;
+
     private void saveUserToken(HubUser hubUser, String jwtToken) {
         Token token = Token.builder()
                 .hubUser(hubUser)
@@ -44,26 +49,13 @@ public class AuthService {
         tokenRepository.save(token);
     }
 
-    //SignUp
-    public AuthResponseDTO register(SignUpDTO request) {
-        // Transfer information
-        HubUser newHubUser = modelMapper.map(request, HubUser.class);
-        // Set id null (good practice)
-        newHubUser.setId(null);
-        // Encode password
-        newHubUser.setPassword(passwordEncoder.encode(request.getPassword()));
-        // Save user
-        HubUser savedHubUser = repository.save(newHubUser);
-        // Generate tokens
-        String jwtToken = jwtService.generateToken(newHubUser);
-        String refreshToken = jwtService.generateRefreshToken(newHubUser);
-        // Salve tokens
-        saveUserToken(savedHubUser, jwtToken);
-        // Give tokens to new user
-        return AuthResponseDTO.builder()
-                .accessToken(jwtToken)
-                .refreshToken(refreshToken)
-                .build();
+    private Cookie createCookie(String refreshToken){
+        Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
+        refreshCookie.setHttpOnly(true);// Cookie can't be managed in client side
+        refreshCookie.setSecure(true); // Cookie can be used only secure https connections
+        refreshCookie.setPath("/");// Cookie will send to all domain request
+        refreshCookie.setMaxAge((int) refreshExpiration);
+        return refreshCookie;
     }
 
     private void revokeAllUserTokens(HubUser hubUser) {
@@ -77,8 +69,41 @@ public class AuthService {
         tokenRepository.saveAll(validUserTokens);
     }
 
+    private AuthResponseDTO manageTokens(HubUser hubUser, HttpServletResponse response){
+        // Generate tokens
+        String jwtToken = jwtService.generateToken(hubUser);
+        String refreshToken = jwtService.generateRefreshToken(hubUser);
+        // Delete all tokens from hubUser
+        revokeAllUserTokens(hubUser);
+        // Salve tokens
+        saveUserToken(hubUser, jwtToken);
+
+        // Put refreshToken in Cookies
+        response.addCookie(createCookie(refreshToken));
+
+        // Return response
+        return AuthResponseDTO.builder()
+                .accessToken(jwtToken)
+                .nickname(hubUser.getNickname())
+                .build();
+    }
+
+    //SignUp
+    public AuthResponseDTO register(SignUpDTO request, HttpServletResponse response) {
+        // Transfer information
+        HubUser newHubUser = modelMapper.map(request, HubUser.class);
+        // Set id null (good practice)
+        newHubUser.setId(null);
+        // Encode password
+        newHubUser.setPassword(passwordEncoder.encode(request.getPassword()));
+        // Save user
+        HubUser savedHubUser = repository.save(newHubUser);
+
+        return manageTokens(savedHubUser, response);
+    }
+
     //Login
-    public AuthResponseDTO authenticate(LoginDTO request) {
+    public AuthResponseDTO authenticate(LoginDTO request, HttpServletResponse response) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(),
@@ -87,24 +112,31 @@ public class AuthService {
         );
         HubUser hubUser = repository.findByUsername(request.getUsername())
                 .orElseThrow();
-        String jwtToken = jwtService.generateToken(hubUser);
-        String refreshToken = jwtService.generateRefreshToken(hubUser);
-        revokeAllUserTokens(hubUser);
-        saveUserToken(hubUser, jwtToken);
-        return AuthResponseDTO.builder()
-                .accessToken(jwtToken)
-                .refreshToken(refreshToken)
-                .build();
+        return manageTokens(hubUser, response);
+    }
+
+    public String getRefreshTokenFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                System.out.println("Nome do cookie eh: " + cookie.getName());
+                if ("refreshToken".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null; // Retorna null se o cookie não for encontrado
     }
 
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        //final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String refreshToken;
         final String hubUserUsername;
-        if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
-            return;
-        }
-        refreshToken = authHeader.substring(7);
+//        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+//            return;
+//        }
+        refreshToken = getRefreshTokenFromCookie(request);
+        System.out.println("Meu refresh token eh: " + refreshToken);
         hubUserUsername = jwtService.extractUsername(refreshToken);
         if (hubUserUsername != null) {
             HubUser hubUser = this.repository.findByUsername(hubUserUsername)
@@ -115,7 +147,7 @@ public class AuthService {
                 saveUserToken(hubUser, accessToken);
                 AuthResponseDTO authResponse = AuthResponseDTO.builder()
                         .accessToken(accessToken)
-                        .refreshToken(refreshToken)
+                        .nickname(hubUser.getNickname())
                         .build();
                 new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
             }
