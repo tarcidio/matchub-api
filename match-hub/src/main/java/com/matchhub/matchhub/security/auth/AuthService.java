@@ -1,9 +1,11 @@
 package com.matchhub.matchhub.security.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.matchhub.matchhub.domain.HubUser;
 import com.matchhub.matchhub.domain.Token;
 import com.matchhub.matchhub.domain.enums.TokenType;
+import com.matchhub.matchhub.dto.HubUserDTODetails;
 import com.matchhub.matchhub.repository.HubUserRepository;
 import com.matchhub.matchhub.repository.TokenRepository;
 import com.matchhub.matchhub.security.dto.AuthResponseDTO;
@@ -84,7 +86,6 @@ public class AuthService {
         // Return response
         return AuthResponseDTO.builder()
                 .accessToken(jwtToken)
-                .nickname(hubUser.getNickname())
                 .build();
     }
 
@@ -147,8 +148,10 @@ public class AuthService {
                 saveUserToken(hubUser, accessToken);
                 AuthResponseDTO authResponse = AuthResponseDTO.builder()
                         .accessToken(accessToken)
-                        .nickname(hubUser.getNickname())
                         .build();
+                // This object constructs a json manually and returns
+                // Unfortunately, the object needs a supplement to deal with LocalDateTime
+                // Then "registerModule(new JavaTimeModule())" must be added
                 new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
             }
         }

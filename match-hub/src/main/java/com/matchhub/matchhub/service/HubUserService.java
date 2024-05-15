@@ -10,13 +10,18 @@ import com.matchhub.matchhub.security.dto.ChangePasswordDTO;
 import com.matchhub.matchhub.security.dto.ChangePositionDTO;
 import com.matchhub.matchhub.service.exceptions.ObjectNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.collection.spi.PersistentBag;
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.spi.MappingContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -46,6 +51,13 @@ public class HubUserService{
                         "Id: "  + id + "." +
                         "Type: " + HubUser.class.getName())
         );
+    }
+
+    public HubUserDTOLinks findHubUser(Principal connectedHubUser){
+        // Get old information by user logged
+        HubUser logged = (HubUser) ((UsernamePasswordAuthenticationToken) connectedHubUser).getPrincipal();
+        // Save update and give response
+        return modelMapper.map(logged, HubUserDTOLinks.class);
     }
 
 

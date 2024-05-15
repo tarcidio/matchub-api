@@ -31,6 +31,13 @@ public class HubUserController {
         return ResponseEntity.ok().body(hubUser);
     }
 
+    @Operation(summary = "Get Logged in HubUser", description = "Return only one user")
+    @GetMapping
+    public ResponseEntity<HubUserDTOLinks> findHubUser(Principal connectedHubUser){
+        HubUserDTOLinks hubUser = hubUserService.findHubUser(connectedHubUser);
+        return ResponseEntity.ok().body(hubUser);
+    }
+
     //Update user
     @PutMapping
     public ResponseEntity<HubUserDTOLinks> update(@RequestBody HubUserDTOBase hubUser,

@@ -44,7 +44,9 @@ public class AuthConfig {
         return (request, response, accessDeniedException) ->
                 // It is not possible to use sendError, but I don't know why
                 // PS: it has no relation to the response already sent (I already checked this)
-                //response.sendError(HttpServletResponse.SC_FORBIDDEN, "Denied");
+                // But, for me, it doesn't make sense to throw an error,
+                // because it is authorized. The only thing is that it is not allowed.
+                // response.sendError(HttpServletResponse.SC_FORBIDDEN, "Denied");
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
     }
 
