@@ -54,6 +54,7 @@ public class AppConfig {
                     email("tarcidio@gmail.com").
                     username("tarcidio").
                     blocked(false).
+                    summonerName("Give").
                     password(passwordEncoder.encode("123")).
                     role(Role.ADMIN).
                     build();

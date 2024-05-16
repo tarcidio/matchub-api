@@ -32,10 +32,10 @@ public class CommentController {
 //    public ResponseEntity<List<Comment>> findAll(@PathVariable Long screenId)
 
     @PostMapping
-    public ResponseEntity<CommentDTOLinks> create(@PathVariable Long screenId,
+    public ResponseEntity<CommentDTODetails> create(@PathVariable Long screenId,
                                                   @RequestBody CommentDTOBase comment,
                                                   Principal connectedHubUser){
-        CommentDTOLinks savedComment = commentService.save(screenId, comment, connectedHubUser);
+        CommentDTODetails savedComment = commentService.save(screenId, comment, connectedHubUser);
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")

@@ -48,7 +48,7 @@ public class CommentService {
         return modelMapper.map(commentDomain, CommentDTODetails.class);
     }
 
-    public CommentDTOLinks save(Long screenId,
+    public CommentDTODetails save(Long screenId,
                                 CommentDTOBase comment,
                                 Principal connectedHubUser) {
         //Get Screen
@@ -65,7 +65,7 @@ public class CommentService {
         saveComment.setId(null);
         saveComment.setScreen(screen);
         saveComment.setHubUser(logged);
-        return modelMapper.map(commentRepository.save(saveComment), CommentDTOLinks.class);
+        return modelMapper.map(commentRepository.save(saveComment), CommentDTODetails.class);
     }
 
     //1. Check if the comment passed as an argument actually has the screenId and commentId passed as arguments
