@@ -48,7 +48,7 @@ public class AppConfig {
         return args -> {
             //Create Users
             HubUser Tarcidio = HubUser.builder().
-                    nickname("tarca").
+                    nickname("Tarca").
                     firstname("tarcidio").
                     lastname("antonio").
                     email("tarcidio@gmail.com").
