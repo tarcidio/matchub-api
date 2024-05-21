@@ -48,7 +48,7 @@ public class HubUserController {
 
     // Change password
     @PatchMapping
-    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordDTO request,
+    public ResponseEntity<Void> changePassword(@RequestBody ChangePasswordDTO request,
                                             Principal connectedHubUser) {
         hubUserService.changePassword(request, connectedHubUser);
         return ResponseEntity.ok().build();

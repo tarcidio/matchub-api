@@ -1,6 +1,7 @@
 package com.matchhub.matchhub.security.auth;
 
 import com.matchhub.matchhub.security.dto.AuthResponseDTO;
+import com.matchhub.matchhub.security.dto.ChangePasswordDTO;
 import com.matchhub.matchhub.security.dto.LoginDTO;
 import com.matchhub.matchhub.security.dto.SignUpDTO;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.security.Principal;
 
 @RestController
 @Tag(name = "Authentication", description = "")
@@ -32,8 +34,9 @@ public class AuthController {
         return ResponseEntity.ok(service.authenticate(request, response));
     }
 
-    @GetMapping("/refresh-token")
+    @PostMapping("/refresh-token")
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         service.refreshToken(request, response);
     }
+
 }

@@ -54,7 +54,7 @@ public class AuthService {
     private Cookie createCookie(String refreshToken){
         Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
         refreshCookie.setHttpOnly(true);// Cookie can't be managed in client side
-        refreshCookie.setSecure(true); // Cookie can be used only secure https connections
+        refreshCookie.setSecure(true); // Cookie can be used only secure https connection
         refreshCookie.setPath("/");// Cookie will send to all domain request
         refreshCookie.setMaxAge((int) refreshExpiration);
         return refreshCookie;
@@ -120,7 +120,7 @@ public class AuthService {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                System.out.println("Nome do cookie eh: " + cookie.getName());
+                System.out.println("Cookie eh: " + cookie);
                 if ("refreshToken".equals(cookie.getName())) {
                     return cookie.getValue();
                 }
@@ -137,7 +137,8 @@ public class AuthService {
 //            return;
 //        }
         refreshToken = getRefreshTokenFromCookie(request);
-        System.out.println("Meu refresh token eh: " + refreshToken);
+        if(refreshToken == null)
+            System.out.println("Cookie eh Nulo");
         hubUserUsername = jwtService.extractUsername(refreshToken);
         if (hubUserUsername != null) {
             HubUser hubUser = this.repository.findByUsername(hubUserUsername)
@@ -157,3 +158,6 @@ public class AuthService {
         }
     }
 }
+
+// Invalidar o jwt token
+// Limpar ou invalidar o cookies

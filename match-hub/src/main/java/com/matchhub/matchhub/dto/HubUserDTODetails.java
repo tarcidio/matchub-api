@@ -17,8 +17,8 @@ import java.util.*;
 @AllArgsConstructor
 @Schema(name = "Full Hub User Schema")
 public class HubUserDTODetails extends HubUserDTOBaseId {
-//    @Schema(description = "Login")
-//    private String username;
+    @Schema(description = "Username to Login")
+    private String username;
 //    @Schema(description = "Password")
 //    private String password;
     @Schema(description = "Name in Riot Account")

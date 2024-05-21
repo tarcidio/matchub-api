@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +32,25 @@ public class HubUserService{
     private final HubUserRepository hubUserRepository;
     private final ModelMapper modelMapper;
 
+    private String maskUsername(String username) {
+        // Verifica se a string tem menos de 4 caracteres
+        if (username.length() < 4) {
+            return username; // Retorna a string original se for muito curta para mascarar
+        }
+
+        // Pega o primeiro, segundo, penúltimo e último caractere
+        char firstChar = username.charAt(0);
+        char secondChar = username.charAt(1);
+        char secondLastChar = username.charAt(username.length() - 2);
+        char lastChar = username.charAt(username.length() - 1);
+
+        // Cria uma string de asteriscos para substituir os caracteres entre o segundo e o penúltimo
+        String maskedMiddle = "*".repeat(username.length() - 4);
+
+        // Concatena os caracteres visíveis com a parte mascarada
+        return firstChar + "" + secondChar + maskedMiddle + secondLastChar + lastChar;
+    }
+
     public HubUserDTODetails findById(Long id) {
         // Get information and check existence
         Optional<HubUser> hubUser = hubUserRepository.findById(id);
@@ -39,6 +59,8 @@ public class HubUserService{
                 "Id: "  + id + "." +
                 "Type: " + HubUser.class.getName())
         );
+        // Mask Username
+        hubUserDomain.setUsername(maskUsername(hubUserDomain.getUsername()));
         // Return result
         return modelMapper.map(hubUserDomain, HubUserDTODetails.class);
     }
@@ -56,6 +78,8 @@ public class HubUserService{
     public HubUserDTOLinks findHubUser(Principal connectedHubUser){
         // Get old information by user logged
         HubUser logged = (HubUser) ((UsernamePasswordAuthenticationToken) connectedHubUser).getPrincipal();
+        // Mask Username
+        logged.setUsername(maskUsername(logged.getUsername()));
         // Save update and give response
         return modelMapper.map(logged, HubUserDTOLinks.class);
     }
@@ -67,8 +91,12 @@ public class HubUserService{
         HubUser updateHubUser = (HubUser) ((UsernamePasswordAuthenticationToken) connectedHubUser).getPrincipal();
         // Update user
         modelMapper.map(hubUser, updateHubUser);
-        // Save update and give response
-        return modelMapper.map(hubUserRepository.save(updateHubUser), HubUserDTOLinks.class);
+        // Save update
+        HubUserDTOLinks savedHubUser = modelMapper.map(hubUserRepository.save(updateHubUser), HubUserDTOLinks.class);
+        // Mask Username
+        savedHubUser.setUsername(maskUsername(savedHubUser.getUsername()));
+        // Give response
+        return savedHubUser;
     }
 
     public void changePassword(ChangePasswordDTO request,
@@ -106,6 +134,11 @@ public class HubUserService{
     public HubUserDTOLinks alterPosition(Long hubUserid, ChangePositionDTO request) {
         HubUser updatedHubUser = this.findDomainById(hubUserid);
         updatedHubUser.setRole(request.getRole());
-        return modelMapper.map(hubUserRepository.save(updatedHubUser), HubUserDTOLinks.class);
+        // Save update
+        HubUserDTOLinks savedHubUser = modelMapper.map(hubUserRepository.save(updatedHubUser), HubUserDTOLinks.class);
+        // Mask Username
+        savedHubUser.setUsername(maskUsername(savedHubUser.getUsername()));
+        // Give response
+        return savedHubUser;
     }
 }
