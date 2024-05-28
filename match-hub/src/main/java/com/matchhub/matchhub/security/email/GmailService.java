@@ -28,40 +28,31 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class GmailService {
-    // Instância de `JsonFactory` que é usada para processar (serializar e desserializar) dados JSON
+    // JSON Factory instance used for processing (serializing and deserializing) JSON data
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
-    // Escopos de permissão que sua aplicação requer para acessar a API do Gmail.
-    // Neste caso, `GmailScopes.GMAIL_SEND` permite que a aplicação envie e-mails em nome do usuário autenticado
+    // Permission scopes required by your application to access the Gmail API.
+    // In this case, `GmailScopes.GMAIL_SEND` allows the application to send emails on behalf of the authenticated user
     private static final List<String> SCOPES = Collections.singletonList(GmailScopes.GMAIL_SEND);
 
-    // Caminho do diretório onde os tokens de autenticação OAuth2 são armazenados localmente
+    // Path to the directory where OAuth2 authentication tokens are stored locally
     @Value("${gmail.api.tokens}")
     private String TOKENS_DIRECTORY_PATH;
 
-    // Caminho para o arquivo JSON que contém as credenciais da API do Google
+    // Path to the JSON file containing Google API credentials
     @Value("${gmail.api.credentials}")
     private String CREDENTIALS_FILE_PATH;
 
-    // Constante armazena o nome da aplicação que será usado ao configurar o cliente da API do Gmail.
-    // Este nome é geralmente utilizado para fins de logging e monitoramento no Google Cloud Platform.
+    // Constant storing the application name used when configuring the Gmail API client.
+    // This name is generally used for logging and monitoring on Google Cloud Platform.
     @Value("${gmail.api.app.name}")
     private String APPLICATION_NAME;
 
     public Gmail gmailServiceFactory() throws IOException, GeneralSecurityException {
-        /*
-        NetHttpTransport: classe usada para configurar e executar solicitações HTTP de baixo nível
-            Origem: biblioteca Google API Client
-            Detalhes: fornece uma implementação de transporte HTTP que utiliza a biblioteca `java.net` do
-            Java para realizar as operações de rede
-        */
-        // final NetHttpTransport HTTP_TRANSPORT = new NetHttpTransport();
+        // NetHttpTransport: class used to configure and execute low-level HTTP requests
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-        /*
-        Gmail: classe usado para realizar operações suportadas pela API do Gmail
-            Origem: API do Gmail que segue o padrão de design Builder (construir objetos complexos passo a passo)
-            Utilidade: enviar e-mails, gerenciar mensagens, etc.
-        */
+
+        // Gmail: class used to perform operations supported by the Gmail API such as sending emails, managing messages, etc.
         return new Gmail.Builder(
                 HTTP_TRANSPORT,
                 JSON_FACTORY,
@@ -71,43 +62,21 @@ public class GmailService {
     }
 
     private Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
-        // Abre o arquivo credencials
+        // Open the credentials file
         File credentialsFile = new File(CREDENTIALS_FILE_PATH);
         FileInputStream credentialsStream = new FileInputStream(credentialsFile);
 
-        // GoogleClientSecrets: encapsula as credenciais do cliente
-        // Origem: classe da biblioteca Google API Client
+        // GoogleClientSecrets: encapsulates client credentials
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(credentialsStream));
 
-        // GoogleAuthorizationCodeFlow: gerencia fluxo de autorização OAuth 2.0 para
-            // Utilidade: usado para iniciar o processo de autorização, onde o usuário é redirecionado
-            // para uma página de login do Google para conceder permissões à aplicação
-        // aplicações que acessam APIs protegidas do Google
-        // setDataStoreFactory: configura onde os tokens de autorização serão armazenados localmente
-        // FileDataStoreFactory: armazena os tokens em um sistema de arquivos local
-        // setAccessType("offline"): acessar os recursos do usuário quando o usuário não está presente na sessão
+        // GoogleAuthorizationCodeFlow: manages OAuth 2.0 authorization flow for applications accessing protected Google APIs
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
                 HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
                 .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
                 .setAccessType("offline")
                 .build();
-        // AuthorizationCodeInstalledApp: gerencia o fluxo de autorização onde o usuário precisa
-        // conceder permissões à aplicação (classe da biblioteca Google API Client)
-        // LocalServerReceiver: cria um servidor HTTP local temporário usado para
-        // escutar a resposta do Google após o usuário autorizar a aplicação
-        // .authorize("user"): inicia o processo de autorização
-        // "user": identificador para diferenciar usuários no armazenamento de tokens,
-        // mas como há apenas um usuário, ele não é essencialmente útil neste contexto
 
-        /* Funcionamento
-        - Quando chamado, `authorize` abre o navegador padrão do usuário para a URL de autorização do Google, onde o usuário pode logar e conceder as permissões solicitadas pela aplicação.
-      - Após o usuário conceder as permissões, o Google redireciona o navegador para o `LocalServerReceiver`. O servidor local captura o código de autorização do redirecionamento e o `AuthorizationCodeInstalledApp` usa esse código para solicitar tokens de acesso e refresh tokens do Google.
-      - Os tokens obtidos são então armazenados no local especificado pelo `GooglesAuthorizationCodeFlow` e podem ser usados para autenticar chamadas à API do Google.
-        */
-//        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
-//        return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
-
-        // Configura o receptor para usar a porta 8080 e o caminho /oauth2callback
+        // LocalServerReceiver: creates a temporary local HTTP server used to listen for Google's response after user authorization
         LocalServerReceiver receiver = new LocalServerReceiver.Builder()
                 .setPort(8888)
                 .setHost("localhost")
@@ -117,32 +86,22 @@ public class GmailService {
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
 
-    // Message: representa uma mensagem de e-mail (classe da API do Gmail)
-    /* Diferença de MimeMessage e Message
-    MimeMessage: cria e manipular mensagens de e-mail no padrão de email da internet
-    Message: representa uma mensagem no Gmail e interage com o Gmail API
-    */
+    // Message: represents an email message (class from the Gmail API)
     public Message sendMessage(Gmail service, String userId, MimeMessage emailContent) throws MessagingException, IOException {
-        // ByteArrayOutputStream: armazena dados em memória (classe do pacote `java.io`)
-        // buffer se expande automaticamente para acomodar os dados
+        // ByteArrayOutputStream: stores data in memory
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        // writeTo: escrever conteúdo do MimeMessage para o OutputStream
         emailContent.writeTo(buffer);
 
-        // Converte dados acumulados em um array de bytes
+        // Convert accumulated data into a byte array
         byte[] bytes = buffer.toByteArray();
-        // Base64:  fornece métodos para codificar e decodificar dados usando codificação Base64
-        // Codifica o array de bytes fornecido em uma string Base64
+        // Base64: provides methods for encoding and decoding data using Base64 encoding
         String encodedEmail = Base64.encodeBase64URLSafeString(bytes);
 
-        Message message = new Message(); // Cria Message que será usado para enviar o e-mail
-        message.setRaw(encodedEmail); // Define o conteúdo codificado do e-mail
-        /*
-        users: recurso que representa os usuários na API do Gmail
-        messages: retorna um recurso que representa as mensagens de e-mail dentro da conta do usuário
-        */
-        message = service.users().messages().send(userId, message).execute(); // Envia o e-mail
+        Message message = new Message(); // Create a Message object to be used for sending the email
+        message.setRaw(encodedEmail); // Set the encoded email content
+
+        // Send the email
+        message = service.users().messages().send(userId, message).execute();
         return message;
     }
-
 }

@@ -10,6 +10,7 @@ import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.util.Properties;
 
@@ -22,47 +23,59 @@ public class EmailService {
     @Value("${gmail.api.from}")
     private String FROM_GMAIL_API;
 
-    @Value("${gmail.api.from}")
+    @Value("${gmail.api.app.link}")
     private String LINK_APP_RESET_PASSWORD;
 
     public void sendRecoveryEmail(String emailHubUser, String token) throws IOException, MessagingException, GeneralSecurityException {
-        // Cria service que gerenciará envio de email
+        // Create a service that will manage the email sending
         Gmail service = gmailService.gmailServiceFactory();
 
-        // Descreve informações do e-mail
+        // Set up email information
         String user = "me";
         String to = emailHubUser;
         String from = FROM_GMAIL_API;
-        String subject = "Password Reset Request";
-        String resetLink = "https://" + LINK_APP_RESET_PASSWORD + "?token=" + token;
-        String bodyText = "Please click on the following link to reset your password: " + resetLink;
+        String subject = "[MatchHub] Password Reset Request - Please Do Not Reply";
+        String bodyText = getBodyText(token);
 
-        // Cria objeto e-mail
+        // Create email object
         MimeMessage emailContent = createEmail(to, from, subject, bodyText);
-        // Enviar o e-mail
+        // Send the email
         gmailService.sendMessage(service, user, emailContent);
     }
 
-    // MimeMessage: constrói e configura detalhes de um e-mail (classe da Java Mail API)
-    public static MimeMessage createEmail(String to, String from, String subject, String bodyText) throws MessagingException {
-        // Properties: usado para configurar parâmetros para a sessão de e-mail
+    private String getBodyText(String token) {
+        String resetLink = "https://" + LINK_APP_RESET_PASSWORD + "?token=" + token;
+        String bodyText = "Hello," +
+                "\n\nYou have requested to reset your password for your MatchHub account. " +
+                "Please click on the link below to set a new password. " +
+                "This link will expire in 15 minutes for security reasons.\n\n" +
+                resetLink +
+                "\n\nIf you did not request a password reset, " +
+                "please ignore this email or contact support if you have any concerns." +
+                "\n\nThank you,\nMatchHub Team";
+        return bodyText;
+    }
+
+    // MimeMessage: constructs and configures details of an email (class from the Java Mail API)
+    public static MimeMessage createEmail(String to, String from, String subject, String bodyText) throws MessagingException, UnsupportedEncodingException {
+        // Properties: used to configure parameters for the email session
         Properties props = new Properties();
-        // Session: representa uma sessão de correio, agrupando todas as configurações e
-        // propriedades necessárias para o envio de e-mails, como
-        // informações de servidor SMTP, autenticação, etc. (classe da Java Mail API)
-        // getDefaultInstance: obtem instância da Session com essas propriedades ou cria caso não exista
-        // null: fornece credenciais quando o servidor de e-mail requer autenticação
-        // Passar `null` significa que não há autenticação personalizada sendo fornecida
+        // Session: represents a mail session, grouping all settings and
+        // necessary properties for sending emails, such as
+        // SMTP server information, authentication, etc. (class from the Java Mail API)
+        // getDefaultInstance: obtains an instance of Session with these properties or creates one if it does not exist
+        // null: provides credentials when the email server requires authentication
+        // Passing `null` means that no custom authentication is being provided
         Session session = Session.getDefaultInstance(props, null);
 
-        MimeMessage email = new MimeMessage(session); // Cria MimeMessag` usando a sessão criada
-        email.setFrom(new InternetAddress(from)); // Define o endereço do remetente do e-mail.
-        email.addRecipient(// Adiciona destinatário
-                javax.mail.Message.RecipientType.TO, // Indica que o destinatário é o principal
-                new InternetAddress(to)); // Define o endereço do destinatário do e-mail.
-        email.setSubject(subject); // Define o assunto do e-mail.
-        email.setText(bodyText); // Define o texto do corpo do e-mail.
-        return email; // Retorna o email criado
+        MimeMessage email = new MimeMessage(session); // Create a MimeMessage using the created session
+        email.setFrom(new InternetAddress(from, "Matchub")); // Set the sender's email address.
+        email.addRecipient(// Add recipient
+                javax.mail.Message.RecipientType.TO, // Indicates that the recipient is the primary one
+                new InternetAddress(to)); // Set the recipient's email address.
+        email.setSubject(subject); // Set the email's subject.
+        email.setText(bodyText); // Set the text of the email body.
+        return email; // Return the created email
     }
 
 }
