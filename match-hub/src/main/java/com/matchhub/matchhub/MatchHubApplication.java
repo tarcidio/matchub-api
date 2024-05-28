@@ -14,6 +14,8 @@ public class MatchHubApplication {
 	// Champion JSON: https://ddragon.leagueoflegends.com/cdn/14.5.1/data/en_US/champion/Aatrox.json
 
 	// API LoL for Developers: https://developer.riotgames.com/apis
+
+	// Google Cloud Console: https://console.cloud.google.com/
 	public static void main(String[] args) {
 		SpringApplication.run(MatchHubApplication.class, args);
 	}

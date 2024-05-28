@@ -79,6 +79,8 @@ public class SecurityFilterConfig {
                                 hasAnyAuthority(HUBUSER_UPDATE.name())
                             .requestMatchers(PATCH, "/hubusers/**").
                                 hasAnyAuthority(HUBUSER_PATCH.name())
+                            .requestMatchers(POST, "/hubusers/**").
+                                hasAnyAuthority(HUBUSER_CREATE.name())
                                 /* SCREENS */
                                 // Roles
                             .requestMatchers("/screens/*/comments/**").

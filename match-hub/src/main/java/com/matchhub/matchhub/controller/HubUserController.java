@@ -2,6 +2,7 @@ package com.matchhub.matchhub.controller;
 
 import com.matchhub.matchhub.dto.HubUserDTOBase;
 import com.matchhub.matchhub.dto.HubUserDTODetails;
+import com.matchhub.matchhub.dto.HubUserDTOImage;
 import com.matchhub.matchhub.dto.HubUserDTOLinks;
 import com.matchhub.matchhub.security.dto.ChangePasswordDTO;
 import com.matchhub.matchhub.service.HubUserService;
@@ -13,8 +14,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.IOException;
 import java.net.URI;
 import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "HubUser", description = "")
 @RestController
@@ -52,6 +58,17 @@ public class HubUserController {
                                             Principal connectedHubUser) {
         hubUserService.changePassword(request, connectedHubUser);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping
+    /*
+    @RequestParam: used in GET requests to extract data from query parameters,
+    or in POST requests to extract data from submitted forms
+    * */
+    public ResponseEntity<HubUserDTOImage> uploadImage(@RequestParam("file") MultipartFile file,
+                                                       Principal connectedHubUser)  throws IOException {
+        HubUserDTOImage imgLink = hubUserService.uploadImageS3(file, connectedHubUser);
+        return ResponseEntity.ok().body(imgLink);
     }
 
 }

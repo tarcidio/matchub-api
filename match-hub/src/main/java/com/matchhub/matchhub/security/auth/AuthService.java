@@ -1,31 +1,34 @@
 package com.matchhub.matchhub.security.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.matchhub.matchhub.domain.HubUser;
 import com.matchhub.matchhub.domain.Token;
 import com.matchhub.matchhub.domain.enums.TokenType;
-import com.matchhub.matchhub.dto.HubUserDTODetails;
 import com.matchhub.matchhub.repository.HubUserRepository;
 import com.matchhub.matchhub.repository.TokenRepository;
 import com.matchhub.matchhub.security.dto.AuthResponseDTO;
+import com.matchhub.matchhub.security.dto.ForgotPasswordDTO;
 import com.matchhub.matchhub.security.dto.LoginDTO;
 import com.matchhub.matchhub.security.dto.SignUpDTO;
+import com.matchhub.matchhub.security.email.EmailService;
 import com.matchhub.matchhub.security.jwt.JwtService;
+import com.matchhub.matchhub.service.HubUserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +39,8 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final ModelMapper modelMapper;
+    private final HubUserService hubUserService;
+    private final EmailService emailService;
 
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshExpiration;
@@ -99,7 +104,8 @@ public class AuthService {
         newHubUser.setPassword(passwordEncoder.encode(request.getPassword()));
         // Save user
         HubUser savedHubUser = repository.save(newHubUser);
-
+        // Set image default
+        hubUserService.uploadDefaultImageS3(savedHubUser.getEmail());
         return manageTokens(savedHubUser, response);
     }
 
@@ -156,6 +162,21 @@ public class AuthService {
                 new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
             }
         }
+    }
+
+    public void resetPassword(ForgotPasswordDTO forgotDTO) throws MessagingException, IOException, GeneralSecurityException {
+        String hubUserEmail = forgotDTO.getEmail();
+        if (!isValidEmail(hubUserEmail)) {
+            throw new IllegalArgumentException("Invalid email format");
+        }
+        HubUser hubUser = repository.findByEmail(hubUserEmail)
+                .orElseThrow(() -> new NoSuchElementException("User not found with email: " + hubUserEmail));
+        String jwtToken = jwtService.generateToken(hubUser);
+        emailService.sendRecoveryEmail(hubUserEmail, jwtToken);
+    }
+
+    private boolean isValidEmail(String email) {
+        return email != null && email.matches("^[A-Za-z0-9+_.-]+@(.+)$");
     }
 }
 

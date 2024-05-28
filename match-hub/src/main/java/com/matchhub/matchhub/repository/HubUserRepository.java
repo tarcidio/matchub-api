@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface HubUserRepository extends JpaRepository<HubUser, Long> {
     Optional<HubUser> findByUsername(String hubUserUsername);
+
+    Optional<HubUser> findByEmail(String hubUserEmail);
 }
