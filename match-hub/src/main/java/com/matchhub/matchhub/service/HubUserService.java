@@ -185,6 +185,11 @@ public class HubUserService{
         return convFile;
     }
 
+    private boolean isValidFileName(String fileName) {
+        // Verifica se o nome do arquivo contém sequências que podem levar a path traversal
+        return !fileName.contains("..");
+    }
+
     public HubUserDTOImage uploadImageS3(MultipartFile multipartFile, Principal connectedHubUser) throws IOException {
         // Get old information by user logged
         HubUser logged = (HubUser) ((UsernamePasswordAuthenticationToken) connectedHubUser).getPrincipal();
@@ -201,6 +206,10 @@ public class HubUserService{
         File file = convertMultiPartToFile(multipartFile);
         String fileName = generateFileName(logged.getEmail());
 
+        if (!isValidFileName(fileName)) {
+            throw new IllegalArgumentException("Invalid file name detected!");
+        }
+
         AmazonS3 s3Client = createS3Client();
         /*
         MultipartFile is not a file type recognized by the AWS SDK for Java;
@@ -216,6 +225,11 @@ public class HubUserService{
     public void uploadDefaultImageS3(String email){
         File defaultImg = new File("src\\main\\resources\\default\\img\\defaultHubUser.jpg");
         String fileName = generateFileName(email);
+
+        if (!isValidFileName(fileName)) {
+            throw new IllegalArgumentException("Invalid file name detected!");
+        }
+
         AmazonS3 s3Client = createS3Client();
         s3Client.putObject(new PutObjectRequest(bucketName, fileName, defaultImg));
     }

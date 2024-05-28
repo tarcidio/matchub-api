@@ -51,7 +51,8 @@ public class AppConfig {
                     nickname("Tarca").
                     firstname("tarcidio").
                     lastname("antonio").
-                    email("tarcidio.antonio2@gmail.com").
+                    // email("tarcidio.antonio2@gmail.com").
+                    email("tarcidio.antonio@usp.br").
                     username("tarcidio").
                     blocked(false).
                     summonerName("Give").

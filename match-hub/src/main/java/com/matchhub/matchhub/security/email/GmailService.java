@@ -108,13 +108,13 @@ public class GmailService {
 //        return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
 
         // Configura o receptor para usar a porta 8080 e o caminho /oauth2callback
-//        LocalServerReceiver receiver = new LocalServerReceiver.Builder()
-//                .setPort(8080)
-//                .setHost("localhost")
-//                .setCallbackPath("/oauth2callback")
-//                .build();
+        LocalServerReceiver receiver = new LocalServerReceiver.Builder()
+                .setPort(8888)
+                .setHost("localhost")
+                .setCallbackPath("/oauth2callback")
+                .build();
 
-        return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+        return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
 
     // Message: representa uma mensagem de e-mail (classe da API do Gmail)
