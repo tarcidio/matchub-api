@@ -2,8 +2,8 @@ package com.matchhub.matchhub.security.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.matchhub.matchhub.domain.HubUser;
-import com.matchhub.matchhub.domain.Token;
-import com.matchhub.matchhub.domain.enums.TokenType;
+import com.matchhub.matchhub.security.token.domain.Token;
+import com.matchhub.matchhub.security.token.domain.enums.TokenType;
 import com.matchhub.matchhub.repository.HubUserRepository;
 import com.matchhub.matchhub.repository.TokenRepository;
 import com.matchhub.matchhub.security.dto.AuthResponseDTO;
@@ -12,6 +12,7 @@ import com.matchhub.matchhub.security.dto.LoginDTO;
 import com.matchhub.matchhub.security.dto.SignUpDTO;
 import com.matchhub.matchhub.security.email.EmailService;
 import com.matchhub.matchhub.security.jwt.JwtService;
+import com.matchhub.matchhub.security.token.service.TokenService;
 import com.matchhub.matchhub.service.HubUserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,27 +35,16 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class AuthService {
     private final HubUserRepository repository;
-    private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final ModelMapper modelMapper;
+    private final JwtService jwtService;
     private final HubUserService hubUserService;
     private final EmailService emailService;
+    private final TokenService tokenService;
 
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshExpiration;
-
-    private void saveUserToken(HubUser hubUser, String jwtToken) {
-        Token token = Token.builder()
-                .hubUser(hubUser)
-                .token(jwtToken)
-                .tokenType(TokenType.BEARER)
-                .expired(false)
-                .revoked(false)
-                .build();
-        tokenRepository.save(token);
-    }
 
     private Cookie createCookie(String refreshToken){
         Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
@@ -65,25 +55,20 @@ public class AuthService {
         return refreshCookie;
     }
 
-    private void revokeAllUserTokens(HubUser hubUser) {
-        List<Token> validUserTokens = tokenRepository.findAllValidTokenByUser(hubUser.getId());
-        if (validUserTokens.isEmpty())
-            return;
-        validUserTokens.forEach(token -> {
-            token.setExpired(true);
-            token.setRevoked(true);
-        });
-        tokenRepository.saveAll(validUserTokens);
+    private String generateRevokeAndSaveAccessToken(HubUser hubUser){
+        // Generate tokens
+        String jwtToken = jwtService.generateToken(hubUser);
+        // Delete all tokens from hubUser
+        tokenService.revokeAllUserTokens(hubUser);
+        // Salve tokens
+        tokenService.saveUserToken(hubUser, jwtToken);
+        // Return token
+        return jwtToken;
     }
 
     private AuthResponseDTO manageTokens(HubUser hubUser, HttpServletResponse response){
-        // Generate tokens
-        String jwtToken = jwtService.generateToken(hubUser);
+        String jwtToken = generateRevokeAndSaveAccessToken(hubUser);
         String refreshToken = jwtService.generateRefreshToken(hubUser);
-        // Delete all tokens from hubUser
-        revokeAllUserTokens(hubUser);
-        // Salve tokens
-        saveUserToken(hubUser, jwtToken);
 
         // Put refreshToken in Cookies
         response.addCookie(createCookie(refreshToken));
@@ -95,7 +80,7 @@ public class AuthService {
     }
 
     //SignUp
-    public AuthResponseDTO register(SignUpDTO request, HttpServletResponse response) {
+    public void createUserAndSendEmailToRegister(SignUpDTO request, HttpServletResponse response) throws MessagingException, GeneralSecurityException, IOException {
         // Transfer information
         HubUser newHubUser = modelMapper.map(request, HubUser.class);
         // Set id null (good practice)
@@ -106,7 +91,10 @@ public class AuthService {
         HubUser savedHubUser = repository.save(newHubUser);
         // Set image default
         hubUserService.uploadDefaultImageS3(savedHubUser.getEmail());
-        return manageTokens(savedHubUser, response);
+        // Revoke, Generate and Save tokens
+        String jwtToken = generateRevokeAndSaveAccessToken(savedHubUser);
+        // Send link to check email
+        emailService.sendCheckEmail(savedHubUser.getEmail(), jwtToken);
     }
 
     //Login
@@ -151,8 +139,8 @@ public class AuthService {
                     .orElseThrow();
             if (jwtService.isTokenValid(refreshToken, hubUser)) {
                 String accessToken = jwtService.generateToken(hubUser);
-                revokeAllUserTokens(hubUser);
-                saveUserToken(hubUser, accessToken);
+                tokenService.revokeAllUserTokens(hubUser);
+                tokenService.saveUserToken(hubUser, accessToken);
                 AuthResponseDTO authResponse = AuthResponseDTO.builder()
                         .accessToken(accessToken)
                         .build();
@@ -164,7 +152,7 @@ public class AuthService {
         }
     }
 
-    public void resetPassword(ForgotPasswordDTO forgotDTO) throws MessagingException, IOException, GeneralSecurityException {
+    public void forgotPassword(ForgotPasswordDTO forgotDTO) throws MessagingException, IOException, GeneralSecurityException {
         String hubUserEmail = forgotDTO.getEmail();
         if (!isValidEmail(hubUserEmail)) {
             throw new IllegalArgumentException("Invalid email format");
@@ -172,6 +160,10 @@ public class AuthService {
         HubUser hubUser = repository.findByEmail(hubUserEmail)
                 .orElseThrow(() -> new NoSuchElementException("User not found with email: " + hubUserEmail));
         String jwtToken = jwtService.generateToken(hubUser);
+        // Delete all tokens from hubUser
+        tokenService.revokeAllUserTokens(hubUser);
+        // Salve tokens
+        tokenService.saveUserToken(hubUser, jwtToken);
         emailService.sendRecoveryEmail(hubUserEmail, jwtToken);
     }
 

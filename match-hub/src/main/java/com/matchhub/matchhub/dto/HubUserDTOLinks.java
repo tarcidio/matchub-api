@@ -1,7 +1,7 @@
 package com.matchhub.matchhub.dto;
 
 import com.matchhub.matchhub.domain.enums.Hability;
-import com.matchhub.matchhub.domain.enums.Role;
+import com.matchhub.matchhub.security.token.domain.enums.Role;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

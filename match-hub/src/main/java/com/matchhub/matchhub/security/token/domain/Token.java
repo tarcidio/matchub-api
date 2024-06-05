@@ -1,6 +1,7 @@
-package com.matchhub.matchhub.domain;
+package com.matchhub.matchhub.security.token.domain;
 
-import com.matchhub.matchhub.domain.enums.TokenType;
+import com.matchhub.matchhub.domain.HubUser;
+import com.matchhub.matchhub.security.token.domain.enums.TokenType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,19 +19,19 @@ import lombok.NoArgsConstructor;
 public class Token {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Integer id;
+    private Integer id;
 
     @Column(nullable = false)
-    public String token;
+    private String token;
 
     @Enumerated(EnumType.STRING)
-    public TokenType tokenType = TokenType.BEARER;
+    private TokenType tokenType;
 
-    public boolean revoked = false;
+    private boolean revoked = false;
 
-    public boolean expired = false;
+    private boolean expired = false;
 
     @ManyToOne
     @JoinColumn(name = "hubUser_id")
-    public HubUser hubUser;
+    private HubUser hubUser;
 }

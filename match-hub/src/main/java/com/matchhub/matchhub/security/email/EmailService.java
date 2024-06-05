@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.util.Properties;
+import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
@@ -23,38 +24,79 @@ public class EmailService {
     @Value("${gmail.api.from}")
     private String FROM_GMAIL_API;
 
-    @Value("${gmail.api.app.link}")
+    @Value("${gmail.api.app.link.reset}")
     private String LINK_APP_RESET_PASSWORD;
 
-    public void sendRecoveryEmail(String emailHubUser, String token) throws IOException, MessagingException, GeneralSecurityException {
+    @Value("${gmail.api.app.link.check}")
+    private String LINK_APP_CHECK_EMAIL;
+
+    private void sendAuthEmail(String emailHubUser, String subjectEmail, String token,
+                               Function<String, String> getBodyText)
+            throws GeneralSecurityException, IOException, MessagingException {
         // Create a service that will manage the email sending
         Gmail service = gmailService.gmailServiceFactory();
 
-        // Set up email information
-        String user = "me";
-        String to = emailHubUser;
-        String from = FROM_GMAIL_API;
-        String subject = "[MatchHub] Password Reset Request - Please Do Not Reply";
-        String bodyText = getBodyText(token);
-
         // Create email object
-        MimeMessage emailContent = createEmail(to, from, subject, bodyText);
+        MimeMessage emailContent = createEmail(
+                emailHubUser,
+                FROM_GMAIL_API,
+                subjectEmail,
+                getBodyText.apply(token)
+        );
+
         // Send the email
-        gmailService.sendMessage(service, user, emailContent);
+        gmailService.sendMessage(
+                service,
+                "me",
+                emailContent
+        );
     }
 
-    private String getBodyText(String token) {
-        String resetLink = "https://" + LINK_APP_RESET_PASSWORD + "?token=" + token;
-        String bodyText = "Hello," +
+    public void sendCheckEmail(String emailHubUser, String token) throws GeneralSecurityException, IOException, MessagingException {
+        // Set up email information
+        sendAuthEmail(
+            emailHubUser,
+            "[MatchHub] Email Verification Request - Please Do Not Reply",
+            token,
+            getBodyTextCheckEmail
+        );
+    }
+
+    public void sendRecoveryEmail(String emailHubUser, String token) throws IOException, MessagingException, GeneralSecurityException {
+        // Set up email information
+        sendAuthEmail(
+                emailHubUser,
+                "[MatchHub] Password Reset Request - Please Do Not Reply",
+                token,
+                getBodyTextResetPassword
+        );
+    }
+
+    private final Function<String,String> getBodyTextCheckEmail = token -> {
+        String link = LINK_APP_CHECK_EMAIL + token;
+        return "Hello," +
+                "\n\nThank you for registering with MatchHub. " +
+                "To complete your registration and verify your email address, " +
+                "please click on the link below. " +
+                "This link will expire in 24 hours for security reasons.\n\n" +
+                link +
+                "\n\nIf you did not create an account, no further action is required. " +
+                "However, if you feel this is an error, please contact our support team.\n\n" +
+                "Thank you,\n" +
+                "MatchHub Team";
+    };
+
+    private final Function<String,String> getBodyTextResetPassword = token -> {
+        String link = LINK_APP_RESET_PASSWORD + token;
+        return "Hello," +
                 "\n\nYou have requested to reset your password for your MatchHub account. " +
                 "Please click on the link below to set a new password. " +
                 "This link will expire in 15 minutes for security reasons.\n\n" +
-                resetLink +
+                link +
                 "\n\nIf you did not request a password reset, " +
                 "please ignore this email or contact support if you have any concerns." +
                 "\n\nThank you,\nMatchHub Team";
-        return bodyText;
-    }
+    };
 
     // MimeMessage: constructs and configures details of an email (class from the Java Mail API)
     public static MimeMessage createEmail(String to, String from, String subject, String bodyText) throws MessagingException, UnsupportedEncodingException {

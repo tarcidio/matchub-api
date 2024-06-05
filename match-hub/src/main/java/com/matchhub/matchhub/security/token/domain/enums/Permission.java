@@ -1,4 +1,4 @@
-package com.matchhub.matchhub.domain.enums;
+package com.matchhub.matchhub.security.token.domain.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,8 @@ public enum Permission {
     HUBUSER_UPDATE("hubuser:update"),
     HUBUSER_CREATE("hubuser:create"),
     HUBUSER_DELETE("hubuser:delete"),
-    HUBUSER_PATCH("hubuser:patch");
+    HUBUSER_PATCH("hubuser:patch"),
+    GUEST_CONFIRM("guest:confirm");
 
     @Getter
     private final String permission;

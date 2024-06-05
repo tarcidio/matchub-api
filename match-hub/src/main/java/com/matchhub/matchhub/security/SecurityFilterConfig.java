@@ -18,8 +18,8 @@ import org.springframework.security.web.authentication.logout.CookieClearingLogo
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.web.cors.CorsConfigurationSource;
 
-import static com.matchhub.matchhub.domain.enums.Permission.*;
-import static com.matchhub.matchhub.domain.enums.Role.*;
+import static com.matchhub.matchhub.security.token.domain.enums.Permission.*;
+import static com.matchhub.matchhub.security.token.domain.enums.Role.*;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
@@ -71,14 +71,16 @@ public class SecurityFilterConfig {
                                 /* HUB USERS */
                                 // Roles
                             .requestMatchers("/hubusers/**").
-                                hasAnyRole(ADMIN.name(), MODERATOR.name(), HUBUSER.name())
+                                hasAnyRole(ADMIN.name(), MODERATOR.name(), HUBUSER.name(), GUEST.name())
                                 // Authority
                             .requestMatchers(GET, "/hubusers/**").
                                 hasAnyAuthority(HUBUSER_READ.name())
                             .requestMatchers(PUT, "/hubusers/**").
                                 hasAnyAuthority(HUBUSER_UPDATE.name())
-                            .requestMatchers(PATCH, "/hubusers/**").
-                                hasAnyAuthority(HUBUSER_PATCH.name())
+                            .requestMatchers(PATCH, "/hubusers/confirm").
+                                hasAnyAuthority(GUEST_CONFIRM.name())
+//                            .requestMatchers(PATCH, "/hubusers/**").
+//                                hasAnyAuthority(HUBUSER_PATCH.name())
                             .requestMatchers(POST, "/hubusers/**").
                                 hasAnyAuthority(HUBUSER_CREATE.name())
                                 /* SCREENS */

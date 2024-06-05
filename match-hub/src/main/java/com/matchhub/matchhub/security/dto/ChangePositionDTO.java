@@ -1,6 +1,6 @@
 package com.matchhub.matchhub.security.dto;
 
-import com.matchhub.matchhub.domain.enums.Role;
+import com.matchhub.matchhub.security.token.domain.enums.Role;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

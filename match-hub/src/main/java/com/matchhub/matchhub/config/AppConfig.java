@@ -1,26 +1,18 @@
 package com.matchhub.matchhub.config;
 
 import com.matchhub.matchhub.domain.*;
-import com.matchhub.matchhub.domain.enums.EvaluationLevel;
 import com.matchhub.matchhub.domain.enums.Known;
-import com.matchhub.matchhub.domain.enums.Role;
+import com.matchhub.matchhub.security.token.domain.enums.Role;
 import com.matchhub.matchhub.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import javax.sql.DataSource;
-import java.io.File;
 import java.util.*;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @Configuration
 @RequiredArgsConstructor
@@ -77,39 +69,39 @@ public class AppConfig {
                     build();
             hubUserRepository.saveAll(List.of(Tarcidio, Augusto, Gabriel));
 
-//            // Get champions id and names
-//            List<AbstractMap.SimpleEntry<Long, String>> championsIdsNames =
-//                    new JsonExtractor("src/main/resources/json/champions").extractChampionsInfo();
-//
-//            // List champions references
-//            List<Champion> champions = new ArrayList<>();
-//
-//            // Create and save all champions
-//            for(AbstractMap.SimpleEntry<Long, String> championIdName : championsIdsNames){
-//                Champion champion = Champion.builder().
-//                        id(championIdName.getKey()).
-//                        name(championIdName.getValue()).
-//                        build();
-//                champions.add(champion);
-//            }
-//            championRepository.saveAll(champions);
-//
-//            // List screen references
-//            List<Screen> screens = new ArrayList<>();
-//
-//            // Create and save all screens
-//            for(Champion spotlight: champions){
-//                // Create all champions
-//                for(Champion opponent: champions){
-//                    Screen screen = Screen.builder().
-//                            spotlight(spotlight).
-//                            opponent(opponent).
-//                            known(Known.LOW).
-//                            build();
-//                    screens.add(screen);
-//                }
-//            }
-//            screenRepository.saveAll(screens);
+            // Get champions id and names
+            List<AbstractMap.SimpleEntry<Long, String>> championsIdsNames =
+                    new JsonExtractor("src/main/resources/json/champions").extractChampionsInfo();
+
+            // List champions references
+            List<Champion> champions = new ArrayList<>();
+
+            // Create and save all champions
+            for(AbstractMap.SimpleEntry<Long, String> championIdName : championsIdsNames){
+                Champion champion = Champion.builder().
+                        id(championIdName.getKey()).
+                        name(championIdName.getValue()).
+                        build();
+                champions.add(champion);
+            }
+            championRepository.saveAll(champions);
+
+            // List screen references
+            List<Screen> screens = new ArrayList<>();
+
+            // Create and save all screens
+            for(Champion spotlight: champions){
+                // Create all champions
+                for(Champion opponent: champions){
+                    Screen screen = Screen.builder().
+                            spotlight(spotlight).
+                            opponent(opponent).
+                            known(Known.LOW).
+                            build();
+                    screens.add(screen);
+                }
+            }
+            screenRepository.saveAll(screens);
 
             /*
             //Create Champions to create comments and evaluations

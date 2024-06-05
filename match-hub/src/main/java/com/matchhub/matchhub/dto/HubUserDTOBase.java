@@ -1,9 +1,6 @@
 package com.matchhub.matchhub.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.matchhub.matchhub.domain.enums.Region;
-import com.matchhub.matchhub.domain.enums.Role;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

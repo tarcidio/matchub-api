@@ -3,8 +3,7 @@ package com.matchhub.matchhub.domain;
 import com.fasterxml.jackson.annotation.*;
 import com.matchhub.matchhub.domain.enums.Hability;
 import com.matchhub.matchhub.domain.enums.Region;
-import com.matchhub.matchhub.domain.enums.Role;
-import io.swagger.v3.oas.annotations.media.Schema;
+import com.matchhub.matchhub.security.token.domain.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -42,7 +41,7 @@ public class HubUser implements UserDetails {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private Role role = Role.HUBUSER;
+    private Role role = Role.GUEST;
 
     @Column(nullable = true)
     private Region region;
@@ -77,6 +76,10 @@ public class HubUser implements UserDetails {
     @Temporal(TemporalType.TIMESTAMP)
     @UpdateTimestamp
     private LocalDateTime update;
+
+    // If HubUser have email checked
+    @Column(nullable = false)
+    private boolean checked = false;
 
     /* Goal: visualize all comments of a user */
     @OneToMany(mappedBy = "hubUser", cascade = CascadeType.ALL)

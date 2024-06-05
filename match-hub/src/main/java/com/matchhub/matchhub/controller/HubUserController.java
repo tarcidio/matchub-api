@@ -5,6 +5,7 @@ import com.matchhub.matchhub.dto.HubUserDTODetails;
 import com.matchhub.matchhub.dto.HubUserDTOImage;
 import com.matchhub.matchhub.dto.HubUserDTOLinks;
 import com.matchhub.matchhub.security.dto.ChangePasswordDTO;
+import com.matchhub.matchhub.security.dto.ResetPasswordDTO;
 import com.matchhub.matchhub.service.HubUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -48,12 +49,12 @@ public class HubUserController {
     @PutMapping
     public ResponseEntity<HubUserDTOLinks> update(@RequestBody HubUserDTOBase hubUser,
                                                   Principal connectedHubUser){
-        HubUserDTOLinks updatedHubUser = hubUserService.update(hubUser, connectedHubUser);
+        HubUserDTOLinks updatedHubUser = hubUserService.updateHubUser(hubUser, connectedHubUser);
         return ResponseEntity.ok().body(updatedHubUser);
     }
 
     // Change password
-    @PatchMapping
+    @PatchMapping("/change-password")
     public ResponseEntity<Void> changePassword(@RequestBody ChangePasswordDTO request,
                                             Principal connectedHubUser) {
         hubUserService.changePassword(request, connectedHubUser);
@@ -69,6 +70,21 @@ public class HubUserController {
                                                        Principal connectedHubUser)  throws IOException {
         HubUserDTOImage imgLink = hubUserService.uploadImageS3(file, connectedHubUser);
         return ResponseEntity.ok().body(imgLink);
+    }
+
+    //Update user
+    @PatchMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@RequestBody ResetPasswordDTO request,
+                                                  Principal connectedHubUser){
+        hubUserService.resetPassword(request, connectedHubUser);
+        return ResponseEntity.ok().build();
+    }
+
+    //Check email
+    @PatchMapping("/confirm")
+    public ResponseEntity<Void> confirmEmail(Principal connectedHubUser){
+        hubUserService.confirmToRegister(connectedHubUser);
+        return ResponseEntity.ok().build();
     }
 
 }

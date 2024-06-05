@@ -1,6 +1,6 @@
 package com.matchhub.matchhub.repository;
 
-import com.matchhub.matchhub.domain.Token;
+import com.matchhub.matchhub.security.token.domain.Token;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

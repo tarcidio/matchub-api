@@ -22,8 +22,9 @@ public class AuthController {
 
     //SignUp
     @PostMapping("/register")
-    public ResponseEntity<AuthResponseDTO> register(@RequestBody SignUpDTO request, HttpServletResponse response) {
-        return ResponseEntity.ok(service.register(request, response));
+    public ResponseEntity<Void> register(@RequestBody SignUpDTO request, HttpServletResponse response) throws MessagingException, GeneralSecurityException, IOException {
+        service.createUserAndSendEmailToRegister(request, response);
+        return ResponseEntity.ok().build();
     }
 
     //LogIn
@@ -40,7 +41,7 @@ public class AuthController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<Void> forgotPassword(@RequestBody ForgotPasswordDTO forgotDTO) throws MessagingException, IOException, GeneralSecurityException {
-        service.resetPassword(forgotDTO);
+        service.forgotPassword(forgotDTO);
         return ResponseEntity.ok().build();
     }
 

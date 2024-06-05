@@ -7,16 +7,17 @@ import com.matchhub.matchhub.dto.HubUserDTODetails;
 import com.matchhub.matchhub.dto.HubUserDTOImage;
 import com.matchhub.matchhub.dto.HubUserDTOLinks;
 import com.matchhub.matchhub.repository.HubUserRepository;
+import com.matchhub.matchhub.security.auth.AuthService;
+import com.matchhub.matchhub.security.token.domain.Token;
+import com.matchhub.matchhub.security.token.domain.enums.Role;
 import com.matchhub.matchhub.security.dto.ChangeBlockStateDTO;
 import com.matchhub.matchhub.security.dto.ChangePasswordDTO;
 import com.matchhub.matchhub.security.dto.ChangePositionDTO;
+import com.matchhub.matchhub.security.dto.ResetPasswordDTO;
+import com.matchhub.matchhub.security.token.service.TokenService;
 import com.matchhub.matchhub.service.exceptions.ObjectNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.collection.spi.PersistentBag;
-import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.spi.MappingContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,8 +27,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,6 +42,7 @@ public class HubUserService{
     private final PasswordEncoder passwordEncoder;
     private final HubUserRepository hubUserRepository;
     private final ModelMapper modelMapper;
+    private final TokenService tokenService;
 
     @Value("${aws.user.access.key.id}")
     private String awsAcessKeyId;
@@ -52,6 +52,10 @@ public class HubUserService{
     private String awsS3Region;
     @Value("${aws.s3.bucket.hubuser.images}")
     private String bucketName;
+
+    private HubUser getAuthenticatedUser(Principal principal) {
+        return (HubUser) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+    }
 
     private String maskUsername(String username) {
         // Verifica se a string tem menos de 4 caracteres
@@ -106,12 +110,29 @@ public class HubUserService{
     }
 
 
-    public HubUserDTOLinks update(HubUserDTOBase hubUser,
+    public HubUserDTOLinks updateHubUser(HubUserDTOBase hubUser,
                                   Principal connectedHubUser) {
         // Get old information by user logged
-        HubUser updateHubUser = (HubUser) ((UsernamePasswordAuthenticationToken) connectedHubUser).getPrincipal();
+        HubUser updateHubUser = getAuthenticatedUser(connectedHubUser);
         // Update user
         modelMapper.map(hubUser, updateHubUser);
+        // Save Update, Mask Username and Give Response
+        return updateAndSave(updateHubUser);
+    }
+
+    public void confirmToRegister(Principal connectedHubUser){
+        // Get old information by user logged
+        HubUser updateHubUser = getAuthenticatedUser(connectedHubUser);
+        // Update info
+        updateHubUser.setChecked(true);
+        updateHubUser.setRole(Role.HUBUSER);
+        // Revoke tokens
+        tokenService.revokeAllUserTokens(updateHubUser);
+        // Save Update, Mask Username and Give Response
+        updateAndSave(updateHubUser);
+    }
+
+    private HubUserDTOLinks updateAndSave(HubUser updateHubUser){
         // Save update
         HubUserDTOLinks savedHubUser = modelMapper.map(hubUserRepository.save(updateHubUser), HubUserDTOLinks.class);
         // Mask Username
@@ -120,10 +141,11 @@ public class HubUserService{
         return savedHubUser;
     }
 
+
     public void changePassword(ChangePasswordDTO request,
                                Principal connectedHubUser) {
         // Get old information by user logged
-        HubUser logged = (HubUser) ((UsernamePasswordAuthenticationToken) connectedHubUser).getPrincipal();
+        HubUser logged = getAuthenticatedUser(connectedHubUser);
 
         // Check if the current password is correct
         if (!passwordEncoder.matches(request.getCurrentPassword(), logged.getPassword())) {
@@ -135,6 +157,19 @@ public class HubUserService{
         }
         // Update the password
         logged.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        // Save the new password
+        hubUserRepository.save(logged);
+    }
+
+    public void resetPassword(ResetPasswordDTO request, Principal connectedHubUser){
+        // Get old information by user logged
+        HubUser logged = getAuthenticatedUser(connectedHubUser);
+        // Update the password
+        logged.setPassword(passwordEncoder.encode(request.getPassword()));
+        // Check if the two new passwords are the same
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
+            throw new IllegalStateException("Password are not the same");
+        }
         // Save the new password
         hubUserRepository.save(logged);
     }
@@ -192,7 +227,7 @@ public class HubUserService{
 
     public HubUserDTOImage uploadImageS3(MultipartFile multipartFile, Principal connectedHubUser) throws IOException {
         // Get old information by user logged
-        HubUser logged = (HubUser) ((UsernamePasswordAuthenticationToken) connectedHubUser).getPrincipal();
+        HubUser logged = getAuthenticatedUser(connectedHubUser);
 
         /*
         MultipartFile: Spring interface that represents a file sent through a

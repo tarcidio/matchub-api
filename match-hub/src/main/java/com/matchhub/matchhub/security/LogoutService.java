@@ -1,6 +1,6 @@
 package com.matchhub.matchhub.security;
 
-import com.matchhub.matchhub.domain.Token;
+import com.matchhub.matchhub.security.token.domain.Token;
 import com.matchhub.matchhub.repository.TokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
