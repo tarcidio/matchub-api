@@ -2,6 +2,7 @@ package com.matchhub.matchhub.security.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.matchhub.matchhub.domain.HubUser;
+import com.matchhub.matchhub.security.cookie.CookieService;
 import com.matchhub.matchhub.security.token.domain.Token;
 import com.matchhub.matchhub.security.token.domain.enums.TokenType;
 import com.matchhub.matchhub.repository.HubUserRepository;
@@ -42,18 +43,7 @@ public class AuthService {
     private final HubUserService hubUserService;
     private final EmailService emailService;
     private final TokenService tokenService;
-
-    @Value("${application.security.jwt.refresh-token.expiration}")
-    private long refreshExpiration;
-
-    private Cookie createCookie(String refreshToken){
-        Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
-        refreshCookie.setHttpOnly(true);// Cookie can't be managed in client side
-        refreshCookie.setSecure(true); // Cookie can be used only secure https connection
-        refreshCookie.setPath("/");// Cookie will send to all domain request
-        refreshCookie.setMaxAge((int) refreshExpiration);
-        return refreshCookie;
-    }
+    private final CookieService cookieService;
 
     private String generateRevokeAndSaveAccessToken(HubUser hubUser){
         // Generate tokens
@@ -71,7 +61,7 @@ public class AuthService {
         String refreshToken = jwtService.generateRefreshToken(hubUser);
 
         // Put refreshToken in Cookies
-        response.addCookie(createCookie(refreshToken));
+        cookieService.addCookie(response, refreshToken);
 
         // Return response
         return AuthResponseDTO.builder()
@@ -110,19 +100,6 @@ public class AuthService {
         return manageTokens(hubUser, response);
     }
 
-    public String getRefreshTokenFromCookie(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                System.out.println("Cookie eh: " + cookie);
-                if ("refreshToken".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
-        }
-        return null; // Retorna null se o cookie não for encontrado
-    }
-
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         //final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String refreshToken;
@@ -130,7 +107,7 @@ public class AuthService {
 //        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
 //            return;
 //        }
-        refreshToken = getRefreshTokenFromCookie(request);
+        refreshToken = cookieService.getRefreshTokenFromCookie(request);
         if(refreshToken == null)
             System.out.println("Cookie eh Nulo");
         hubUserUsername = jwtService.extractUsername(refreshToken);
@@ -170,6 +147,8 @@ public class AuthService {
     private boolean isValidEmail(String email) {
         return email != null && email.matches("^[A-Za-z0-9+_.-]+@(.+)$");
     }
+
+
 }
 
 // Invalidar o jwt token

@@ -9,6 +9,7 @@ import com.matchhub.matchhub.security.dto.ResetPasswordDTO;
 import com.matchhub.matchhub.service.HubUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -82,9 +83,9 @@ public class HubUserController {
 
     //Check email
     @PatchMapping("/confirm")
-    public ResponseEntity<Void> confirmEmail(Principal connectedHubUser){
-        hubUserService.confirmToRegister(connectedHubUser);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Void> confirmEmail(Principal connectedHubUser, HttpServletResponse response){
+        hubUserService.confirmToRegister(connectedHubUser, response);
+        return ResponseEntity.noContent().build();
     }
 
 }

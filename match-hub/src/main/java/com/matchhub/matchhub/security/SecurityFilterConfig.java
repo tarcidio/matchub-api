@@ -77,10 +77,10 @@ public class SecurityFilterConfig {
                                 hasAnyAuthority(HUBUSER_READ.name())
                             .requestMatchers(PUT, "/hubusers/**").
                                 hasAnyAuthority(HUBUSER_UPDATE.name())
-                            .requestMatchers(PATCH, "/hubusers/confirm").
+                            .requestMatchers(PATCH, "/hubusers/confirm/**").
                                 hasAnyAuthority(GUEST_CONFIRM.name())
-//                            .requestMatchers(PATCH, "/hubusers/**").
-//                                hasAnyAuthority(HUBUSER_PATCH.name())
+                            .requestMatchers(PATCH, "/hubusers/**").
+                                hasAnyAuthority(HUBUSER_PATCH.name())
                             .requestMatchers(POST, "/hubusers/**").
                                 hasAnyAuthority(HUBUSER_CREATE.name())
                                 /* SCREENS */

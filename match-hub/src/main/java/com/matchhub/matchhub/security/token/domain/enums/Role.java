@@ -48,6 +48,7 @@ public enum Role {
                     Permission.HUBUSER_PATCH)
     ),
     GUEST(Set.of(Permission.GUEST_CONFIRM));
+
     @Getter
     private final Set<Permission> permissions;
 

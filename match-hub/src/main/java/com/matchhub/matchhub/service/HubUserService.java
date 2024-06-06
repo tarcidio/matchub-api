@@ -8,6 +8,8 @@ import com.matchhub.matchhub.dto.HubUserDTOImage;
 import com.matchhub.matchhub.dto.HubUserDTOLinks;
 import com.matchhub.matchhub.repository.HubUserRepository;
 import com.matchhub.matchhub.security.auth.AuthService;
+import com.matchhub.matchhub.security.cookie.CookieService;
+import com.matchhub.matchhub.security.jwt.JwtService;
 import com.matchhub.matchhub.security.token.domain.Token;
 import com.matchhub.matchhub.security.token.domain.enums.Role;
 import com.matchhub.matchhub.security.dto.ChangeBlockStateDTO;
@@ -16,6 +18,7 @@ import com.matchhub.matchhub.security.dto.ChangePositionDTO;
 import com.matchhub.matchhub.security.dto.ResetPasswordDTO;
 import com.matchhub.matchhub.security.token.service.TokenService;
 import com.matchhub.matchhub.service.exceptions.ObjectNotFoundException;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,7 +45,8 @@ public class HubUserService{
     private final PasswordEncoder passwordEncoder;
     private final HubUserRepository hubUserRepository;
     private final ModelMapper modelMapper;
-    private final TokenService tokenService;
+    private final CookieService cookieService;
+    private final JwtService jwtService;
 
     @Value("${aws.user.access.key.id}")
     private String awsAcessKeyId;
@@ -120,14 +124,18 @@ public class HubUserService{
         return updateAndSave(updateHubUser);
     }
 
-    public void confirmToRegister(Principal connectedHubUser){
+    public void confirmToRegister(Principal connectedHubUser, HttpServletResponse response){
         // Get old information by user logged
         HubUser updateHubUser = getAuthenticatedUser(connectedHubUser);
         // Update info
         updateHubUser.setChecked(true);
         updateHubUser.setRole(Role.HUBUSER);
-        // Revoke tokens
-        tokenService.revokeAllUserTokens(updateHubUser);
+        // Revoke tokens: It is not possible to do it here, because that would end the request
+        // tokenService.revokeAllUserTokens(updateHubUser);
+        // Create Refresh Token
+        String refreshToken = jwtService.generateRefreshToken(updateHubUser);
+        // Add Cookie
+        cookieService.addCookie(response, refreshToken);
         // Save Update, Mask Username and Give Response
         updateAndSave(updateHubUser);
     }
