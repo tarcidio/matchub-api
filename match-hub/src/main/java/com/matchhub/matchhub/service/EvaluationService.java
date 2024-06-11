@@ -44,9 +44,9 @@ public class EvaluationService {
     private void congratsNotification(String email, String maxNumGoodEvaluation, String spotlight,
                                       String opponent) throws JsonProcessingException {
         String link = notificationLink + spotlight + "/" + opponent;
-        String subject = "Congratulations! Your comment has reached " + maxNumGoodEvaluation + " likes on MatchHub!";
+        String subject = "[MatcHub] Congratulations! Your comment has reached " + maxNumGoodEvaluation + " likes on MatcHub!";
         String likeOrLikes = maxNumGoodEvaluation.equals("1") ? "like" : "likes";
-        String message = "We have great news! Your comment on MatchHub has just reached "
+        String message = "We have great news! Your comment on MatcHub has just reached "
                 + maxNumGoodEvaluation + " " + likeOrLikes + "! "
                 + "This shows how much your contribution is valued by our community. "
                 + "We want to thank you for sharing your ideas and thoughts with us.\n\n"
@@ -54,9 +54,9 @@ public class EvaluationService {
                 + link
                 + "\n\nKeep engaging with the community, and who knows, your next comment might be even more popular!\n\n"
                 + "If you have any questions or need assistance, please do not hesitate to contact our support team.\n\n"
-                + "Thank you for being a part of the MatchHub community!\n\n"
+                + "Thank you for being a part of the MatcHub community!\n\n"
                 + "Best regards,\n"
-                + "MatchHub Team";
+                + "MatcHub Team";
         EmailMessage emailToSQS = EmailMessage.builder()
                 .email(email)
                 .subject(subject)

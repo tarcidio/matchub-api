@@ -56,7 +56,7 @@ public class EmailService {
         // Set up email information
         sendAuthEmail(
                 emailHubUser,
-                "[MatchHub] Email Verification Request - Please Do Not Reply",
+                "[MatcHub] Email Verification Request - Please Do Not Reply",
                 token,
                 getBodyTextCheckEmail
         );
@@ -66,7 +66,7 @@ public class EmailService {
         // Set up email information
         sendAuthEmail(
                 emailHubUser,
-                "[MatchHub] Password Reset Request - Please Do Not Reply",
+                "[MatcHub] Password Reset Request - Please Do Not Reply",
                 token,
                 getBodyTextResetPassword
         );
@@ -75,7 +75,7 @@ public class EmailService {
     private final Function<String, String> getBodyTextCheckEmail = token -> {
         String link = LINK_APP_CHECK_EMAIL + token;
         return "Hello," +
-                "\n\nThank you for registering with MatchHub. " +
+                "\n\nThank you for registering with MatcHub. " +
                 "To complete your registration and verify your email address, " +
                 "please click on the link below. " +
                 "This link will expire in 24 hours for security reasons.\n\n" +
@@ -83,19 +83,19 @@ public class EmailService {
                 "\n\nIf you did not create an account, no further action is required. " +
                 "However, if you feel this is an error, please contact our support team.\n\n" +
                 "Thank you,\n" +
-                "MatchHub Team";
+                "MatcHub Team";
     };
 
     private final Function<String, String> getBodyTextResetPassword = token -> {
         String link = LINK_APP_RESET_PASSWORD + token;
         return "Hello," +
-                "\n\nYou have requested to reset your password for your MatchHub account. " +
+                "\n\nYou have requested to reset your password for your MatcHub account. " +
                 "Please click on the link below to set a new password. " +
                 "This link will expire in 15 minutes for security reasons.\n\n" +
                 link +
                 "\n\nIf you did not request a password reset, " +
                 "please ignore this email or contact support if you have any concerns." +
-                "\n\nThank you,\nMatchHub Team";
+                "\n\nThank you,\nMatcHub Team";
     };
 
     // MimeMessage: constructs and configures details of an email (class from the Java Mail API)
@@ -111,7 +111,7 @@ public class EmailService {
         Session session = Session.getDefaultInstance(props, null);
 
         MimeMessage email = new MimeMessage(session); // Create a MimeMessage using the created session
-        email.setFrom(new InternetAddress(from, "Matchub")); // Set the sender's email address.
+        email.setFrom(new InternetAddress(from, "MatcHub")); // Set the sender's email address.
         email.addRecipient(// Add recipient
                 javax.mail.Message.RecipientType.TO, // Indicates that the recipient is the primary one
                 new InternetAddress(to)); // Set the recipient's email address.
