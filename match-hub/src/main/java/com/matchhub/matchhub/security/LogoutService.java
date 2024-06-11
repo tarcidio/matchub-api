@@ -1,7 +1,8 @@
 package com.matchhub.matchhub.security;
 
 import com.matchhub.matchhub.security.token.domain.Token;
-import com.matchhub.matchhub.repository.TokenRepository;
+import com.matchhub.matchhub.security.token.repository.TokenRepository;
+import com.matchhub.matchhub.security.token.service.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class LogoutService implements LogoutHandler {
-    private final TokenRepository tokenRepository;
+    private final TokenService tokenService;
 
     @Override
     public void logout(
@@ -27,12 +28,11 @@ public class LogoutService implements LogoutHandler {
             return;
         }
         jwt = authHeader.substring(7);
-        Token storedToken = tokenRepository.findByToken(jwt)
-                .orElse(null);
+        Token storedToken = tokenService.findByToken(jwt);
         if (storedToken != null) {
             storedToken.setExpired(true);
             storedToken.setRevoked(true);
-            tokenRepository.save(storedToken);
+            tokenService.saveToken(storedToken);
             SecurityContextHolder.clearContext();
         }
     }

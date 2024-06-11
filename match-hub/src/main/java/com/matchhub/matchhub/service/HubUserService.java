@@ -1,16 +1,13 @@
 package com.matchhub.matchhub.service;
 
-import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.matchhub.matchhub.aws.S3Service;
 import com.matchhub.matchhub.domain.HubUser;
 import com.matchhub.matchhub.dto.HubUserDTOBase;
 import com.matchhub.matchhub.dto.HubUserDTODetails;
 import com.matchhub.matchhub.dto.HubUserDTOImage;
 import com.matchhub.matchhub.dto.HubUserDTOLinks;
 import com.matchhub.matchhub.repository.HubUserRepository;
-import com.matchhub.matchhub.security.auth.AuthService;
 import com.matchhub.matchhub.security.cookie.CookieService;
-import com.matchhub.matchhub.security.jwt.JwtService;
-import com.matchhub.matchhub.security.token.domain.Token;
 import com.matchhub.matchhub.security.token.domain.enums.Role;
 import com.matchhub.matchhub.security.dto.ChangeBlockStateDTO;
 import com.matchhub.matchhub.security.dto.ChangePasswordDTO;
@@ -21,7 +18,7 @@ import com.matchhub.matchhub.service.exceptions.ObjectNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,11 +29,8 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -46,16 +40,8 @@ public class HubUserService{
     private final HubUserRepository hubUserRepository;
     private final ModelMapper modelMapper;
     private final CookieService cookieService;
-    private final JwtService jwtService;
-
-    @Value("${aws.user.access.key.id}")
-    private String awsAcessKeyId;
-    @Value("${aws.user.access.key.value}")
-    private String awsAcessKeyValue;
-    @Value("${aws.s3.region}")
-    private String awsS3Region;
-    @Value("${aws.s3.bucket.hubuser.images}")
-    private String bucketName;
+    private final TokenService tokenService;
+    private final S3Service s3Service;
 
     private HubUser getAuthenticatedUser(Principal principal) {
         return (HubUser) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
@@ -133,7 +119,7 @@ public class HubUserService{
         // Revoke tokens: It is not possible to do it here, because that would end the request
         // tokenService.revokeAllUserTokens(updateHubUser);
         // Create Refresh Token
-        String refreshToken = jwtService.generateRefreshToken(updateHubUser);
+        String refreshToken = tokenService.generateRefreshToken(updateHubUser);
         // Add Cookie
         cookieService.addCookie(response, refreshToken);
         // Save Update, Mask Username and Give Response
@@ -206,18 +192,17 @@ public class HubUserService{
         return savedHubUser;
     }
 
-    private AmazonS3 createS3Client() {
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials(awsAcessKeyId, awsAcessKeyValue);
-        return AmazonS3ClientBuilder.standard()
-                .withRegion(awsS3Region)
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-                .build();
-    }
-
     private String generateFileName(String userEmail) {
         String emailModified = userEmail.replace("@", "_");
         String extension = ".jpg";
         return emailModified + extension;
+    }
+
+    public void uploadDefaultImageS3(String email){
+        File defaultImg = new File("src\\main\\resources\\default\\img\\defaultHubUser.jpg");
+        String fileName = generateFileName(email);
+
+        s3Service.uploadImage(fileName, defaultImg);
     }
 
     private File convertMultiPartToFile(MultipartFile file) throws IOException {
@@ -226,11 +211,6 @@ public class HubUserService{
         fos.write(file.getBytes());
         fos.close();
         return convFile;
-    }
-
-    private boolean isValidFileName(String fileName) {
-        // Verifica se o nome do arquivo contém sequências que podem levar a path traversal
-        return !fileName.contains("..");
     }
 
     public HubUserDTOImage uploadImageS3(MultipartFile multipartFile, Principal connectedHubUser) throws IOException {
@@ -249,31 +229,19 @@ public class HubUserService{
         File file = convertMultiPartToFile(multipartFile);
         String fileName = generateFileName(logged.getEmail());
 
-        if (!isValidFileName(fileName)) {
-            throw new IllegalArgumentException("Invalid file name detected!");
-        }
-
-        AmazonS3 s3Client = createS3Client();
-        /*
-        MultipartFile is not a file type recognized by the AWS SDK for Java;
-        it is specific to the context of handling web requests in Spring and does not
-        should be used to upload files to S3
-        */
-        s3Client.putObject(new PutObjectRequest(bucketName, fileName, file));
-        file.delete(); // To clean up the temporary file
-
-        return new HubUserDTOImage(s3Client.getUrl(bucketName, fileName).toString());
+        return new HubUserDTOImage(s3Service.uploadImage(fileName, file));
     }
 
-    public void uploadDefaultImageS3(String email){
-        File defaultImg = new File("src\\main\\resources\\default\\img\\defaultHubUser.jpg");
-        String fileName = generateFileName(email);
+    @Scheduled(cron = "0 0 2 * * ?") // Run at 2 A.M.
+    public void cleanHubUserGuest() {
+        List<HubUser> guests = findGuests();
+        hubUserRepository.deleteAll(guests);
+    }
 
-        if (!isValidFileName(fileName)) {
-            throw new IllegalArgumentException("Invalid file name detected!");
-        }
-
-        AmazonS3 s3Client = createS3Client();
-        s3Client.putObject(new PutObjectRequest(bucketName, fileName, defaultImg));
+    private List<HubUser> findGuests() {
+        List<HubUser> allTokens = hubUserRepository.findAll();
+        return allTokens.stream()
+                .filter(hubUser -> hubUser.getRole().equals(Role.GUEST))
+                .collect(Collectors.toList());
     }
 }

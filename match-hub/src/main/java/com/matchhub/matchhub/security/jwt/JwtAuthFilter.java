@@ -1,6 +1,6 @@
 package com.matchhub.matchhub.security.jwt;
 
-import com.matchhub.matchhub.repository.TokenRepository;
+import com.matchhub.matchhub.security.token.repository.TokenRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

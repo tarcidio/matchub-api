@@ -9,12 +9,14 @@ import org.modelmapper.ModelMapper;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.*;
 
 @Configuration
+@EnableScheduling
 @RequiredArgsConstructor
 public class AppConfig {
     private final PasswordEncoder passwordEncoder;

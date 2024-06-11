@@ -24,10 +24,10 @@ public class EmailService {
     @Value("${gmail.api.from}")
     private String FROM_GMAIL_API;
 
-    @Value("${gmail.api.app.link.reset}")
+    @Value("${app.link.reset}")
     private String LINK_APP_RESET_PASSWORD;
 
-    @Value("${gmail.api.app.link.check}")
+    @Value("${app.link.check}")
     private String LINK_APP_CHECK_EMAIL;
 
     private void sendAuthEmail(String emailHubUser, String subjectEmail, String token,
@@ -55,10 +55,10 @@ public class EmailService {
     public void sendCheckEmail(String emailHubUser, String token) throws GeneralSecurityException, IOException, MessagingException {
         // Set up email information
         sendAuthEmail(
-            emailHubUser,
-            "[MatchHub] Email Verification Request - Please Do Not Reply",
-            token,
-            getBodyTextCheckEmail
+                emailHubUser,
+                "[MatchHub] Email Verification Request - Please Do Not Reply",
+                token,
+                getBodyTextCheckEmail
         );
     }
 
@@ -72,7 +72,7 @@ public class EmailService {
         );
     }
 
-    private final Function<String,String> getBodyTextCheckEmail = token -> {
+    private final Function<String, String> getBodyTextCheckEmail = token -> {
         String link = LINK_APP_CHECK_EMAIL + token;
         return "Hello," +
                 "\n\nThank you for registering with MatchHub. " +
@@ -86,7 +86,7 @@ public class EmailService {
                 "MatchHub Team";
     };
 
-    private final Function<String,String> getBodyTextResetPassword = token -> {
+    private final Function<String, String> getBodyTextResetPassword = token -> {
         String link = LINK_APP_RESET_PASSWORD + token;
         return "Hello," +
                 "\n\nYou have requested to reset your password for your MatchHub account. " +

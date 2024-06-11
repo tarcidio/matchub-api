@@ -21,6 +21,14 @@ public class AuthController {
     private final AuthService service;
 
     //SignUp
+    /*
+    To register, the user must confirm their email. For this, this route sends a link to the provided email.
+    Through this link, the user accesses a page that automatically validates the email in the backend.
+    This validation occurs because a JWT token is passed in the URL. It could be done differently,
+    by forcing the user to enter a code, but this would require creating a new table in the database and
+    a new logic (Service) for this code, which is not worthwhile since the JWT, besides offering equivalent security,
+    already has a structure.
+    * */
     @PostMapping("/register")
     public ResponseEntity<Void> register(@RequestBody SignUpDTO request, HttpServletResponse response) throws MessagingException, GeneralSecurityException, IOException {
         service.createUserAndSendEmailToRegister(request, response);

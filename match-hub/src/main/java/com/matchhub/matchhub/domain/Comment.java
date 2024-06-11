@@ -56,6 +56,15 @@ public class Comment{
     @Column(nullable = false)
     private String text = "";
 
+    @Column(nullable = false)
+    private Integer numGoodEvaluation = 0;
+
+    @Column(nullable = false)
+    private Integer numBadEvaluation = 0;
+
+    @Column(nullable = false)
+    private Integer maxNumGoodEvaluation = 0;
+
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL)
     private List<Evaluation> evaluations = new ArrayList<>();
 

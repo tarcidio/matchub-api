@@ -15,6 +15,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentDTODetails extends CommentDTOBaseId{
+    private Integer numGoodEvaluation;
+    private Integer numBadEvaluation;
     private LocalDate creationDate;
     private LocalTime creationTime;
     private LocalDate updateDate;

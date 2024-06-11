@@ -16,6 +16,7 @@ public class MatchHubApplication {
 	// API LoL for Developers: https://developer.riotgames.com/apis
 
 	// Google Cloud Console: https://console.cloud.google.com/
+	// AWS:
 	public static void main(String[] args) {
 		SpringApplication.run(MatchHubApplication.class, args);
 	}

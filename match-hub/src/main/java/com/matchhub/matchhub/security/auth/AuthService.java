@@ -3,10 +3,8 @@ package com.matchhub.matchhub.security.auth;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.matchhub.matchhub.domain.HubUser;
 import com.matchhub.matchhub.security.cookie.CookieService;
-import com.matchhub.matchhub.security.token.domain.Token;
-import com.matchhub.matchhub.security.token.domain.enums.TokenType;
+import com.matchhub.matchhub.security.token.domain.enums.Role;
 import com.matchhub.matchhub.repository.HubUserRepository;
-import com.matchhub.matchhub.repository.TokenRepository;
 import com.matchhub.matchhub.security.dto.AuthResponseDTO;
 import com.matchhub.matchhub.security.dto.ForgotPasswordDTO;
 import com.matchhub.matchhub.security.dto.LoginDTO;
@@ -15,13 +13,12 @@ import com.matchhub.matchhub.security.email.EmailService;
 import com.matchhub.matchhub.security.jwt.JwtService;
 import com.matchhub.matchhub.security.token.service.TokenService;
 import com.matchhub.matchhub.service.HubUserService;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,7 +26,6 @@ import org.springframework.stereotype.Service;
 import javax.mail.MessagingException;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -39,7 +35,6 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final ModelMapper modelMapper;
-    private final JwtService jwtService;
     private final HubUserService hubUserService;
     private final EmailService emailService;
     private final TokenService tokenService;
@@ -47,7 +42,7 @@ public class AuthService {
 
     private String generateRevokeAndSaveAccessToken(HubUser hubUser){
         // Generate tokens
-        String jwtToken = jwtService.generateToken(hubUser);
+        String jwtToken = tokenService.generateToken(hubUser);
         // Delete all tokens from hubUser
         tokenService.revokeAllUserTokens(hubUser);
         // Salve tokens
@@ -58,7 +53,7 @@ public class AuthService {
 
     private AuthResponseDTO manageTokens(HubUser hubUser, HttpServletResponse response){
         String jwtToken = generateRevokeAndSaveAccessToken(hubUser);
-        String refreshToken = jwtService.generateRefreshToken(hubUser);
+        String refreshToken = tokenService.generateRefreshToken(hubUser);
 
         // Put refreshToken in Cookies
         cookieService.addCookie(response, refreshToken);
@@ -95,9 +90,18 @@ public class AuthService {
                         request.getPassword()
                 )
         );
+
         HubUser hubUser = repository.findByUsername(request.getUsername())
                 .orElseThrow();
+        // Verificação do papel do usuário
+        checkUserRole(hubUser);
         return manageTokens(hubUser, response);
+    }
+
+    private void checkUserRole(HubUser hubUser) {
+        if (hubUser.getRole().equals(Role.GUEST)) {
+            throw new InsufficientAuthenticationException("Email verification is required for role: GUEST");
+        }
     }
 
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -110,12 +114,12 @@ public class AuthService {
         refreshToken = cookieService.getRefreshTokenFromCookie(request);
         if(refreshToken == null)
             System.out.println("Cookie eh Nulo");
-        hubUserUsername = jwtService.extractUsername(refreshToken);
+        hubUserUsername = tokenService.extractUsername(refreshToken);
         if (hubUserUsername != null) {
             HubUser hubUser = this.repository.findByUsername(hubUserUsername)
                     .orElseThrow();
-            if (jwtService.isTokenValid(refreshToken, hubUser)) {
-                String accessToken = jwtService.generateToken(hubUser);
+            if (tokenService.isTokenValid(refreshToken, hubUser)) {
+                String accessToken = tokenService.generateToken(hubUser);
                 tokenService.revokeAllUserTokens(hubUser);
                 tokenService.saveUserToken(hubUser, accessToken);
                 AuthResponseDTO authResponse = AuthResponseDTO.builder()
@@ -136,7 +140,7 @@ public class AuthService {
         }
         HubUser hubUser = repository.findByEmail(hubUserEmail)
                 .orElseThrow(() -> new NoSuchElementException("User not found with email: " + hubUserEmail));
-        String jwtToken = jwtService.generateToken(hubUser);
+        String jwtToken = tokenService.generateToken(hubUser);
         // Delete all tokens from hubUser
         tokenService.revokeAllUserTokens(hubUser);
         // Salve tokens

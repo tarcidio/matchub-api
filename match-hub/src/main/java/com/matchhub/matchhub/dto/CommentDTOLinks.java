@@ -13,6 +13,8 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentDTOLinks extends CommentDTOBaseId {
+    private Integer numGoodEvaluation;
+    private Integer numBadEvaluation;
     private Long hubUserId;
     private Long screenId;
     private LocalDate creationDate;

@@ -1,5 +1,6 @@
 package com.matchhub.matchhub.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.matchhub.matchhub.dto.EvaluationDTOBase;
 import com.matchhub.matchhub.dto.EvaluationDTOLinks;
 import com.matchhub.matchhub.service.EvaluationService;
@@ -31,7 +32,7 @@ public class EvaluationController {
     @PostMapping
     public ResponseEntity<EvaluationDTOLinks> create(@PathVariable Long commentId,
                                                      @RequestBody EvaluationDTOBase evaluation,
-                                                     Principal connectedHubUser){
+                                                     Principal connectedHubUser) throws JsonProcessingException {
         EvaluationDTOLinks savedEvaluation = evaluationService.save(commentId, evaluation, connectedHubUser);
         URI uri = ServletUriComponentsBuilder.
                 fromCurrentRequest().
@@ -45,7 +46,7 @@ public class EvaluationController {
     public ResponseEntity<EvaluationDTOLinks> update(@PathVariable Long commentId,
                                                      @PathVariable Long evaluationId,
                                                      @RequestBody EvaluationDTOBase evaluation,
-                                                     Principal connectedHubUser){
+                                                     Principal connectedHubUser) throws JsonProcessingException {
         EvaluationDTOLinks updatedEvaluation = evaluationService.update(commentId, evaluationId, evaluation, connectedHubUser);
         return ResponseEntity.ok().body(updatedEvaluation);
     }
