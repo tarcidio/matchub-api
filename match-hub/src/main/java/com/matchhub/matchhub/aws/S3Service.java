@@ -50,8 +50,6 @@ public class S3Service{
                 RequestBody.fromFile(file)
         );
 
-        file.delete(); // To clean up the temporary file
-
         return s3Client.utilities().getUrl(builder -> builder.bucket(bucketName).key(fileName)).toExternalForm();
     }
 }
