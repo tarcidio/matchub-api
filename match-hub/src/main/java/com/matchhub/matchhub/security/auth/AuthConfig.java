@@ -3,6 +3,7 @@ package com.matchhub.matchhub.security.auth;
 import com.matchhub.matchhub.repository.HubUserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,6 +28,9 @@ import java.util.Arrays;
 public class AuthConfig {
     private final HubUserRepository repository;
 
+    @Value("${app.link.origin}")
+    private String origin;
+
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> repository.findByUsername(username)
@@ -34,7 +38,7 @@ public class AuthConfig {
     }
 
     @Bean
-    public AuthenticationEntryPoint authenticationEntryPoint(){
+    public AuthenticationEntryPoint authenticationEntryPoint() {
         return (request, response, authException) ->
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
     }
@@ -65,12 +69,14 @@ public class AuthConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
-            throws Exception { return config.getAuthenticationManager(); }
+            throws Exception {
+        return config.getAuthenticationManager();
+    }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200")); // Permitir de todas as origens
+        configuration.setAllowedOrigins(Arrays.asList(origin)); // Permitir de todas as origens
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type", "x-auth-token"));
         configuration.setExposedHeaders(Arrays.asList("x-auth-token"));

@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.matchhub</groupId>
-	<artifactId>match-hub</artifactId>
+	<artifactId>matchub-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>match-hub</name>
 	<description>Match Ups at League of Legends Game Analysis </description>
