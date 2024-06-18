@@ -33,4 +33,4 @@ build/
 .vscode/
 
 ### Credentials Files ###
-src/main/resources/google/*
+src/main/resources/google/api/*

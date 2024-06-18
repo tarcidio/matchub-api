@@ -1,2 +1,4 @@
 docker/api/secrets-env.env
+docker/api/data/*
 docker/database/secrets-env.env
+docker/api/data/*

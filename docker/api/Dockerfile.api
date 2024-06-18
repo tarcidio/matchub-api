@@ -1,5 +1,5 @@
 # To build this image:
-# docker build -f Dockerfile.api -t matchub-api-spring-image .
+# docker build -f docker/api/Dockerfile.api -t matchub-api-spring-image .
     # -f: indicates dockerfile name
     # -t: indicates a tag to identify the image
     # .: indicates where Docker should look for this file (in this case, in the command's current directory)
@@ -10,9 +10,10 @@
 # 1st Step: create the network
     # docker network create matchub-network
 # 2nd Step: build the container:
-    # docker run -d --name matchub-api-spring-container --network matchub-network -p 8080:8080 --env-file secrets-env.env matchub-api-spring-image
+    # docker run -d --name matchub-api-spring-container --network matchub-network -p 8080:8080 --env-file docker/api/secrets-env.env -v /docker/api/data/logs:/app/logs matchub-api-spring-image
         # -d: run container in the background, allowed to continue using the terminal 
         # -p: Docker will forward data traffic arriving on port 8080 of the host to port 8080 of the container
+        # 8080: alternative to port 80 for web traffic when 80 is already in use
 
 ##############################################################################################################
 
@@ -21,17 +22,15 @@
 # 1st Build: Maven build to generate the .jar
     # First step: imports the dependencies
     # Second step: generates the .jar
-# 2nd Build: build of the .jar to run the application
-
-ARG HOST_URL=http://localhost
-ARG PROJECT_PATH=../../matchub-api/
-ARG PROJECT_VERSION=1.0.0
-ARG PROJECT_NAME=matchub-api-${PROJECT_VERSION}.jar
+# 2nd Build: build of the .jar application execution
 
 # 1st BUILD: MAVEN
 # Imports base image for Maven
 # NOTE: I couldn't find an official Maven image, but this one comes from a reliable company with millions of users
 FROM jelastic/maven:3.9.5-openjdk-21 as builder
+
+# Added ARG to facilitate any changes in the directory system
+ARG PROJECT_PATH=../../matchub-api/
 
 # Sets `/maven-openjdk` as the working directory for Maven
 WORKDIR /maven-openjdk
@@ -40,10 +39,6 @@ WORKDIR /maven-openjdk
 COPY ${PROJECT_PATH}pom.xml .
 
 # Downloads all dependencies specified in `pom.xml` to the container
-# NOTE: if the dependencies have been downloaded before, they will probably be in Maven's cache
-# and will not need to be downloaded again
-# NOTE: "go-offline" indicates that we want to download now so that it won't be necessary to be online to
-# run the dependencies in the future
 RUN mvn dependency:go-offline
 
 # Copies project files to the Maven working directory
@@ -56,29 +51,40 @@ RUN mvn package -DskipTests
 # Imports official JDK base image
 FROM openjdk:21
 
-# Optional: defines LABEL for the Dockerfile
+# Set ARG to facilitate any changes in the future
+ARG HOST_URL=http://localhost
+ARG PROJECT_PATH=../../matchub-api/
+# MAJOR: 1 (dependency); MINOR: 0 (feature); PATCH: 0 (bugs)
+ARG PROJECT_VERSION=1.0.0
+ARG PROJECT_NAME=matchub-api-${PROJECT_VERSION}.jar
+
+# Set LABEL for description purposes
 LABEL org.opencontainers.image.title="MatcHub - Spring Image Application" \
       org.opencontainers.image.version="${PROJECT_VERSION}" \
       org.opencontainers.image.description="This Java backend application handles business logic, \
       interacts with databases, and integrates with external services including Gmail, AWS S3, and AWS SQS. \
       It features robust authentication mechanisms and is designed for scalable cloud environments." \
-      org.opencontainers.image.authors="tarcidio.antonio2@gmail.com" \
       org.opencontainers.image.licenses="MIT" \
-      org.opencontainers.image.source="https://github.com/tarcidio/match-hub" \
-      org.opencontainers.image.documentation="https://github.com/tarcidio/match-hub/blob/main/README.md"
+      org.opencontainers.image.authors="https://www.linkedin.com/in/tarcidio/" \
+      org.opencontainers.image.source="https://github.com/tarcidio/matchub-api" \
+      org.opencontainers.image.documentation="https://github.com/tarcidio/matchub-api/blob/main/README.md"
 
 # Important environment variables for project execution
+# Location of data to initialize the application
 ENV API_DATA_CHAMPIONS_PATH=/openjdk/json/champions \
     API_DATA_DEFAULT_IMG_PATH=/openjdk/default/img/defaultHubUser.jpg
 
+# Response URL for emails and for CORS
 ENV APP_URL_CHECK=${HOST_URL}/auth/confirm/token/ \
     APP_URL_NOTIFICATION=${HOST_URL}/ \
     APP_URL_ORIGIN=${HOST_URL} \
     APP_URL_RESET=${HOST_URL}/auth/reset/token/
 
+# Location of credential files to use GMAIL
 ENV GMAIL_API_CREDENTIALS_PATH=/openjdk/google/credentials/credentials.json \
     GMAIL_API_TOKENS_PATH=/openjdk/google/tokens
 
+# Specifies connection to the database
 ENV SPRING_DATASOURCE_URL=jdbc:postgresql://matchub-db-postgres-container:5432/matchub
 
 # Creates working directory for JDK
@@ -87,8 +93,6 @@ WORKDIR /openjdk
 
 # Copies the .jar generated in the Maven build to the JDK build
 # --from=builder: specifies that the file should be copied from a previous stage named `builder`
-# /app/target/matchub.jar: path of the file in the container from the build stage
-# .: bring the file to the current working directory
 COPY --from=builder /maven-openjdk/target/${PROJECT_NAME} .
 
 # Some files are opened during the execution of this project and, therefore, need to be moved
@@ -104,17 +108,8 @@ COPY ${PROJECT_PATH}src/main/resources/google/api /openjdk/google
 EXPOSE 8080
 
 # Specifies the execution command
-CMD ["java", "-jar", "${PROJECT_NAME}"]
-
+CMD ["java", "-jar", "matchub-api-1.0.0.jar"]
 
 # NOTE: command to see the files that the .jar compiled
     # mvn clean package
     # jar tf matchub-api-1.0.0.jar
-
-# OBS: comando para ver os arquivos que o .jar compilou 
-    # mvn clean packge
-    # jar tf matchub-api-1.0.0.jar
-
-# Arrumar os arquivos dockerfile para que fiquem organizados
-# Especificar volume no comando para cada docker file
-# Criar docker compose
