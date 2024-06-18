@@ -56,7 +56,7 @@ ARG HOST_URL=http://localhost
 ARG PROJECT_PATH=../../matchub-api/
 # MAJOR: 1 (dependency); MINOR: 0 (feature); PATCH: 0 (bugs)
 ARG PROJECT_VERSION=1.0.0
-ARG PROJECT_NAME=matchub-api-${PROJECT_VERSION}.jar
+ARG PROJECT_NAME=matchub.jar
 
 # Set LABEL for description purposes
 LABEL org.opencontainers.image.title="MatcHub - Spring Image Application" \
@@ -108,7 +108,7 @@ COPY ${PROJECT_PATH}src/main/resources/google/api /openjdk/google
 EXPOSE 8080
 
 # Specifies the execution command
-CMD ["java", "-jar", "matchub-api-1.0.0.jar"]
+CMD ["java", "-jar", "matchub.jar"]
 
 # NOTE: command to see the files that the .jar compiled
     # mvn clean package
