@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
 
@@ -25,8 +26,8 @@ public class AppConfig {
     private final ScreenRepository screenRepository;
     private final ChampionRepository championRepository;
     private final HubUserRepository hubUserRepository;
-    private final CommentRepository commentRepository;
-    private final EvaluationRepository evaluationRepository;
+    @Value("${api.data.champions.path}")
+    private String pathDataChampions;
 
     //ModelMapper: automate the object mapping process
     @Bean
@@ -75,7 +76,7 @@ public class AppConfig {
 
             // Get champions id and names
             List<AbstractMap.SimpleEntry<Long, String>> championsIdsNames =
-                    new JsonExtractor("src/main/resources/json/champions").extractChampionsInfo();
+                    new JsonExtractor(pathDataChampions).extractChampionsInfo();
 
             // List champions references
             List<Champion> champions = new ArrayList<>();

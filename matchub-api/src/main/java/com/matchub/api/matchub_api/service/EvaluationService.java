@@ -28,7 +28,7 @@ public class EvaluationService {
     private final ModelMapper modelMapper;
     private final SQSService sqsService;
 
-    @Value("${app.link.notification}")
+    @Value("${app.url.notification}")
     private String notificationLink;
 
     public Evaluation findDomainById(Long id) {

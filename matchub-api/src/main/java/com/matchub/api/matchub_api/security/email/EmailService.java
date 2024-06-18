@@ -24,10 +24,10 @@ public class EmailService {
     @Value("${gmail.api.from}")
     private String FROM_GMAIL_API;
 
-    @Value("${app.link.reset}")
+    @Value("${app.url.reset}")
     private String LINK_APP_RESET_PASSWORD;
 
-    @Value("${app.link.check}")
+    @Value("${app.url.check}")
     private String LINK_APP_CHECK_EMAIL;
 
     private void sendAuthEmail(String emailHubUser, String subjectEmail, String token,

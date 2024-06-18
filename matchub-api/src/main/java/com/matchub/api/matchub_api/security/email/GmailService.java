@@ -36,11 +36,11 @@ public class GmailService {
     private static final List<String> SCOPES = Collections.singletonList(GmailScopes.GMAIL_SEND);
 
     // Path to the directory where OAuth2 authentication tokens are stored locally
-    @Value("${gmail.api.tokens}")
+    @Value("${gmail.api.tokens.path}")
     private String TOKENS_DIRECTORY_PATH;
 
     // Path to the JSON file containing Google API credentials
-    @Value("${gmail.api.credentials}")
+    @Value("${gmail.api.credentials.path}")
     private String CREDENTIALS_FILE_PATH;
 
     // Constant storing the application name used when configuring the Gmail API client.

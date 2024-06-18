@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.matchub.api</groupId>
 	<artifactId>matchub-api</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>matchub-api</name>
 	<description>Match Ups at League of Legends Game Analysis </description>
 	<properties>
@@ -231,6 +231,20 @@
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
 						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+
+			<!-- Ensures that those files will not be included in the build -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.2.0</version>
+				<configuration>
+					<excludes>
+						<exclude>google/api/**</exclude>
+						<exclude>json/champions/**</exclude>
+						<exclude>default/img/**</exclude>
 					</excludes>
 				</configuration>
 			</plugin>

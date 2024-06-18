@@ -27,7 +27,7 @@ import java.util.Arrays;
 public class AuthConfig {
     private final HubUserRepository repository;
 
-    @Value("${app.link.origin}")
+    @Value("${app.url.origin}")
     private String origin;
 
     @Bean

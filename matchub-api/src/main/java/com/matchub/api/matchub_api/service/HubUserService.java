@@ -22,6 +22,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -42,6 +43,9 @@ public class HubUserService{
     private final CookieService cookieService;
     private final TokenService tokenService;
     private final S3Service s3Service;
+
+    @Value("${api.data.default.img.path}")
+    private String pathDefaultImg;
 
     private HubUser getAuthenticatedUser(Principal principal) {
         return (HubUser) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
@@ -199,7 +203,7 @@ public class HubUserService{
     }
 
     public void uploadDefaultImageS3(String email){
-        File defaultImg = new File("src\\main\\resources\\default\\img\\defaultHubUser.jpg");
+        File defaultImg = new File(pathDefaultImg);
         String fileName = generateFileName(email);
 
         s3Service.uploadImage(fileName, defaultImg);

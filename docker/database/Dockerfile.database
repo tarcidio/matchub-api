@@ -1,0 +1,66 @@
+# To build this image: 
+# docker build -f Dockerfile.database -t matchub-db-postgres-image .
+      # -f: indicates dockerfile name
+      # -t: indicates a tag to identify the image
+      # .: indicates where Docker should look for this file (in this case, in the command's current directory)
+
+##############################################################################################################
+
+# To build the container with this image:
+# 1st Step: create the network
+    # docker network create matchub-network
+# 2nd Step: build the container:
+      # docker run -d --name matchub-db-postgres-container --network matchub-network -p 5432:5432 --env-file secrets-env.env matchub-db-postgres-image
+            # -d: run container in the background, allowed to continue using the terminal 
+            # -p: Docker will forward data traffic arriving on port 5432 of the host to port 5432 of the container
+
+##############################################################################################################
+
+
+# Choose the base image
+# Latest version of postgres (which is maintained by developers)
+FROM postgres:latest
+
+ARG PROJECT_VERSION=1.0.0
+
+# MAJOR: changes to dependencies
+# MINOR: addition of features
+# PATCH: bug fix    
+LABEL org.opencontainers.image.title="MatcHub - PostgresSQL Image Application" \
+      org.opencontainers.image.version="${PROJECT_VERSION}" \
+      org.opencontainers.image.description="Customized PostgreSQL image configured with table definitions, \
+      essential data insertion for administrator users, grants, indexes, procedures, triggers, and views. \
+      Ideal for environments requiring a pre-configured database for development or production purposes." \
+      org.opencontainers.image.authors="tarcidio.antonio2@gmail.com" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.source="https://github.com/tarcidio/match-hub" \
+      org.opencontainers.image.documentation="https://github.com/tarcidio/match-hub/blob/main/README.md"
+
+# Sets the working directory for the `RUN`, `CMD`, `ENTRYPOINT`, `COPY`, and `ADD` instructions
+# Utility: could use `cd` commands in `RUN` instructions to change directories,
+# but this can make the Dockerfile more confusing and error-prone.
+# NOTE: Most of PostgreSQL's configurations and operations do not depend on the container's working directory, as
+# PostgreSQL has its own standard configuration and data paths
+# WORKDIR
+
+# Installs additional packages, performs system configurations, or 
+# prepares the environment before starting the service. However, 
+# for basic use cases, especially when using the official PostgreSQL image, 
+# many of these configurations are already set up, and the use of `RUN` is not necessary
+# RUN
+
+# Copies files and directories from the local filesystem to the container's filesystem
+# during the Docker image build
+# `/docker-entrypoint-initdb.d/`: directory inside the Docker container where scripts should be copied. 
+# In the case of the official PostgreSQL image, this directory is special because any SQL script or 
+# shell script (.sh) placed in this directory will automatically be executed on the first startup 
+# of the PostgreSQL container. This happens before the database server is started for the first time.
+COPY ./initialize/ /docker-entrypoint-initdb.d/
+
+# The official PostgreSQL image on Docker Hub already includes a default command (`CMD`) that starts the PostgreSQL server
+# which is carefully configured to start the database server correctly, 
+# handling permissions, initial settings, and other important aspects.
+# CMD
+
+# Indicates that the container, when run, will listen on the specified ports
+EXPOSE 5432
