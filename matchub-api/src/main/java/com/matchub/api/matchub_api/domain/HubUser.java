@@ -66,7 +66,7 @@ public class HubUser implements UserDetails {
 
     // Champion with greatest mastery
     @ManyToOne
-    @JoinColumn(name = "champion_id")
+    @JoinColumn(name = "mastery_champion_id")
     private Champion mastery;
 
     @Temporal(TemporalType.TIMESTAMP)

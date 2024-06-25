@@ -10,7 +10,7 @@
 # 1st Step: create the network
     # docker network create matchub-network
 # 2nd Step: build the container:
-    # docker run -d --name matchub-api-spring-container --network matchub-network -p 8080:8080 --env-file docker/api/secrets-env.env -v /docker/api/data/logs:/app/logs matchub-api-spring-image
+    # docker run -d --name matchub-api-spring-container --network matchub-network -p 8080:8080 --env-file docker/api/secrets-env.env -v data/logs:/app/logs matchub-api-spring-image
         # -d: run container in the background, allowed to continue using the terminal 
         # -p: Docker will forward data traffic arriving on port 8080 of the host to port 8080 of the container
         # 8080: alternative to port 80 for web traffic when 80 is already in use
@@ -90,6 +90,9 @@ ENV SPRING_DATASOURCE_URL=jdbc:postgresql://matchub-db-postgres-container:5432/m
 # Creates working directory for JDK
 # Changing working directories from one build to another is a good practice
 WORKDIR /openjdk
+
+# Define the volume for logs
+VOLUME /openjdk/logs
 
 # Copies the .jar generated in the Maven build to the JDK build
 # --from=builder: specifies that the file should be copied from a previous stage named `builder`

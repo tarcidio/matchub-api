@@ -1,0 +1,119 @@
+// Link: https://dbdiagram.io/d/MatcHub-66796eb69939893dae1ac29b
+
+Table HubUser {
+  id number [pk, increment]
+  email varchar2(55) [not null, unique]
+  username varchar2(15) [not null, unique]
+  password varchar2(255) [not null]
+
+  role varchar2(15) [not null, default: 'GUEST']
+  region varchar2(5)
+  blocked boolean [not null, default: false]
+
+  nickname varchar2(30) [not null]
+  firstname varchar2(30)
+  lastname varchar2(30)
+  summonerName varchar2(255)
+  
+  creation timestamp [not null, default: `now()`]
+  update timestamp [not null, default: `now()`]
+  checked boolean [not null, default: false]
+
+  abilityLevel varchar2(13) [default: 'NORMAL']
+  mastery_champion_id number [ref: > Champion.id]
+  
+  /*
+  CHECKS:
+  - Password size > 5
+  - password ~ '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).+$'
+  - (role IN ('ADMIN', 'MODERATOR', 'HUBUSER', 'GUEST'))
+  - (region IN ('BR1', 'EUN1', 'EUW1', 'JP1', 'KR', 'LA1', 'LA2', 'NA1', 'OC1', 'PH2', 'RU', 'SG2', 'TH2', 'TR1', 'TW2', 'VN2'))
+  - (abilityLevel IN ('NORMAL', 'SKILLED', 'MONOCHAMPION'))
+  - creation <= CURRENT_DATE
+  - update <= CURRENT_DATE
+  - creation <= update
+  */
+}
+
+Table Champion {
+  id number [pk]
+  name varchar2(255) [not null, unique]
+}
+
+Table Screen {
+  id number [pk, increment]
+  spotlight_id number [not null, ref: > Champion.id]
+  opponent_id number [not null, ref: > Champion.id]
+  known varchar2(5) [not null, default: 'LOW']
+
+  indexes {
+    (spotlight_id, opponent_id) [unique]
+  }
+
+  /*
+  CHECKS:
+  - (known IN ('LOW', 'HIGH'))
+  */
+}
+
+Table Comment {
+  id number [pk, increment]
+  hubUser_id number [not null, ref: > HubUser.id]
+  screen_id number [not null, ref: > Screen.id]
+  creationDate date [not null, default: `current_date()`]
+  creationTime time [not null, default: `current_time()`]
+  updateDate date [not null, default: `current_date()`]
+  updateTime time [not null, default: `current_time()`]
+  text varchar2(255) [not null, default: '']
+  numGoodEvaluation int [not null, default: 0]
+  numBadEvaluation int [not null, default: 0]
+  maxNumGoodEvaluation int [not null, default: 0]
+
+  indexes {
+    (hubUser_id, screen_id, creationDate, creationTime) [unique]
+  }
+  /*
+  CHECKS:
+  - (numGoodEvaluation >= 0)
+  - (numBadEvaluation >= 0)
+  - (maxNumGoodEvaluation >= 0)
+  - creationDate <= CURRENT_DATE
+  - updateDate <= CURRENT_DATE
+  - creationDate <= updateDate
+  */
+}
+
+Table Evaluation {
+  id number [pk, increment]
+  hubUser_id number [not null, ref: > HubUser.id]
+  comment_id number [not null, ref: > Comment.id]
+  level varchar2(5) [not null, default: 'GOOD']
+  creation timestamp [not null, default: `now()`]
+  update timestamp [not null, default: `now()`]
+
+  indexes {
+    (hubUser_id, comment_id) [unique]
+  }
+
+  /*
+  CHECKS:
+  - (level IN ('GOOD','BAD'))
+  - creation <= CURRENT_DATE
+  - update <= CURRENT_DATE
+  - creation <= update
+  */
+}
+
+Table Token {
+  id number [pk, increment] // GenerationType.IDENTITY implies auto-increment
+  token varchar2(255) [not null, unique]
+  tokenType varchar2(7) // Assuming EnumType.STRING is mapped to varchar
+  revoked boolean [default: false]
+  expired boolean [default: false]
+  hubUser_id number [ref: > HubUser.id] // ManyToOne relationship
+
+  /*
+  CHECKS:
+  - (tokenType IN ('BEARER'))
+  */
+}

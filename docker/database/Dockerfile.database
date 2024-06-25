@@ -10,7 +10,7 @@
 # 1st Step: create the network
     # docker network create matchub-network
 # 2nd Step: build the container:
-      # docker run -d --name matchub-db-postgres-container --network matchub-network -p 5432:5432 --env-file docker/database/secrets-env.env -v docker/database/data:/var/lib/postgresql/data matchub-db-postgres-image
+      # docker run -d --name matchub-db-postgres-container --network matchub-network -p 5432:5432 --env-file docker/database/secrets-env.env -v data:/var/lib/postgresql/data matchub-db-postgres-image
             # -d: run container in the background, allowed to continue using the terminal 
             # -p: Docker will forward data traffic arriving on port 5432 of the host to port 5432 of the container
 
@@ -55,6 +55,9 @@ LABEL org.opencontainers.image.title="MatcHub - PostgreSQL Image Application" \
 # shell script (.sh) placed in this directory will automatically be executed on the first startup 
 # of the PostgreSQL container. This happens before the database server is started for the first time.
 COPY ./initialize/ /docker-entrypoint-initdb.d/
+
+# Define a volume for PostgreSQL data
+VOLUME /var/lib/postgresql/data
 
 # The official PostgreSQL image on Docker Hub already includes a default command (`CMD`) that starts the PostgreSQL server
 # which is carefully configured to start the database server correctly, 

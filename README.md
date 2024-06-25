@@ -1,44 +1,21 @@
-# Connect, Combat and Conquer: MatcHub, Your Ultimate Matchup Forum
+# MatcHub API
 
-## What is this?
+## Overview
 
-## Who developed it, why and under what circumstances? About Front, Back and Database
+MatcHub is an interactive platform for League of Legends players, providing a space where users can explore and discuss the advantages and disadvantages of each game matchup. This project was developed during an internship and includes several complementary modules. Detailed information is available at the [main repository](https://github.com/tarcidio/matchub). This document aims to summarize some of the functionalities of the project's API, showcasing aspects of the database and the available routes.
 
-## How build?
+## Database
 
-# Development Report
+### Entity Relationship Model
 
-## Introduction
+![MatcHub-MER](/matchub-api/demo/MatcHub-MER-DarkMode.png)
 
-## About Methodology
+### Relational Model
 
-## About Technologies
+![MatcHub-Relational](/matchub-api/demo/MatcHub-Relational-DarkMode.png)
 
-## About Development
+To see Relational Model, acess [dbdiagram.io](https://dbdiagram.io/d/MatcHub-66796eb69939893dae1ac29b)
 
-### Database
+## Routes
 
-### Rotes
-
-### Services
-
-### DTO
-
-### Authentication
-
-### Gmail API
-
-### Riot API
-
-### Exceptions
-
-### AWS
-
-#### S3
-
-#### SQS
-
-#### IAM
-
-#### Lamda
-
+On building 🚧🚧🚧🏗️🏗️🏗️
