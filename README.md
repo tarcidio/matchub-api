@@ -8,11 +8,11 @@ MatcHub is an interactive platform for League of Legends players, providing a sp
 
 ### Entity Relationship Model
 
-![MatcHub-MER](/matchub-api/demo/MatcHub-MER-DarkMode.png)
+![MatcHub-MER](demo/MatcHub-MER-DarkMode.png)
 
 ### Relational Model
 
-![MatcHub-Relational](/matchub-api/demo/MatcHub-Relational-DarkMode.png)
+![MatcHub-Relational](demo/MatcHub-Relational-DarkMode.png)
 
 To see Relational Model, acess [dbdiagram.io](https://dbdiagram.io/d/MatcHub-66796eb69939893dae1ac29b)
 
